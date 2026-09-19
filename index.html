@@ -49,6 +49,7 @@
         <li><a href="#productos">Productos</a></li>
         <li><a href="#holistico">Alimento holístico</a></li>
         <li><a href="sobre-kume.html">Sobre Küme</a></li>
+        <li><a href="#donde-comprar">Dónde comprar</a></li>
         <li><a href="#novedades">Blog</a></li>
         <li><a href="#contacto">Contacto</a></li>
       </ul>
@@ -174,6 +175,53 @@
     </section>
 
     <!-- ALIMENTO HOLÍSTICO (scrollytelling) -->
+    <!-- ===== Guía rápida: dos preguntas, un producto ===== -->
+    <section class="guia" id="guia" aria-labelledby="guia-titulo">
+      <div class="guia__head">
+        <p class="eyebrow">Guía rápida</p>
+        <h2 id="guia-titulo">¿Cuál le doy?</h2>
+        <p class="guia__lead">Dos preguntas y sabés con cuál de los cinco productos Küme empezar.</p>
+      </div>
+
+      <div class="guia__form">
+        <fieldset class="guia__group">
+          <legend class="guia__legend"><b>1</b> ¿Para quién es?</legend>
+          <div class="chips" role="radiogroup" aria-label="Tipo de mascota" data-grupo="mascota">
+            <button class="chip" type="button" role="radio" aria-checked="true" data-valor="perro">Perro</button>
+            <button class="chip" type="button" role="radio" aria-checked="false" data-valor="gato">Gato</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="guia__group">
+          <legend class="guia__legend"><b>2</b> ¿Qué estás buscando?</legend>
+          <div class="chips" role="radiogroup" aria-label="Qué estás buscando" data-grupo="objetivo">
+            <button class="chip" type="button" role="radio" aria-checked="true" data-valor="diario">Su alimento de todos los días</button>
+            <button class="chip" type="button" role="radio" aria-checked="false" data-valor="pelo">Piel y pelo</button>
+            <button class="chip" type="button" role="radio" aria-checked="false" data-valor="muscular">Masa muscular</button>
+            <button class="chip" type="button" role="radio" aria-checked="false" data-valor="recuperacion">Recuperación</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <!-- Resultado: se renderiza ya resuelto (perro + diario) para que funcione sin JS -->
+      <output class="guia__out guia__out--naranja" id="guia-resultado" aria-live="polite">
+        <span class="guia__pack"><img id="guia-img" src="assets/img/pack-perros.webp" alt="" width="365" height="773" loading="lazy"></span>
+        <span class="guia__info">
+          <span class="guia__para">Para tu perro, todos los días</span>
+          <span class="guia__label" id="guia-label">Alimento holístico</span>
+          <span class="guia__title" id="guia-title">Perros</span>
+          <span class="guia__text" id="guia-text">Un único alimento para todas las etapas de la vida, razas y tamaños. Con componentes herbales naturales y croquetas standard o pequeñas.</span>
+          <span class="guia__pres" id="guia-pres">3 kg y 15 kg</span>
+          <span class="guia__actions">
+            <a class="btn btn--dark btn--small" id="guia-detalle" href="https://kume.com.ar/productos/" data-detalle="perros" aria-haspopup="dialog">Ver detalle</a>
+            <a class="link" href="https://kume3.mitiendanube.com/" target="_blank" rel="noopener">Comprar online</a>
+          </span>
+        </span>
+      </output>
+
+      <p class="guia__nota">Es una orientación general. Ante una condición de salud, consultá siempre con tu médico veterinario.</p>
+    </section>
+
     <section class="story" id="holistico" aria-labelledby="holistico-titulo">
       <div class="story__pin">
         <div class="story__art">
@@ -234,6 +282,38 @@
     </section>
 
     <!-- BLOG -->
+    <!-- ===== Prueba social ===== -->
+    <section class="voces" id="voces" aria-labelledby="voces-titulo">
+      <div class="voces__head">
+        <h2 id="voces-titulo">Los que eligen</h2>
+        <p class="demo-tag">Testimonios de ejemplo: reemplazar por los reales antes de publicar.</p>
+      </div>
+
+      <ul class="voces__list">
+        <li class="voce">
+          <blockquote class="voce__quote"><p>Cambiamos hace ocho meses y lo primero que notamos fue el pelo. Después, que hace menos caca y más firme. Ya no volvemos atrás.</p></blockquote>
+          <div class="voce__who">
+            <img class="voce__ph" src="assets/img/labrador.jpg" alt="" width="285" height="284" loading="lazy">
+            <p><b>Mariana G.</b> · Rosario<span>Thor, labrador de 5 años</span></p>
+          </div>
+        </li>
+        <li class="voce">
+          <blockquote class="voce__quote"><p>Mi gata es de comer poco y con este arrancó sola. Me quedo tranquila con lo del tracto urinario, que es lo que siempre me preocupó.</p></blockquote>
+          <div class="voce__who">
+            <img class="voce__ph" src="assets/img/gato-2.jpg" alt="" width="143" height="142" loading="lazy">
+            <p><b>Lucía P.</b> · CABA<span>Nina, siamesa de 3 años</span></p>
+          </div>
+        </li>
+        <li class="voce">
+          <blockquote class="voce__quote"><p>Lo recomiendo en el consultorio para pacientes que vienen de una cirugía. La formulación está pensada, no es marketing.</p></blockquote>
+          <div class="voce__who">
+            <img class="voce__ph" src="assets/img/bulldog.jpg" alt="" width="169" height="142" loading="lazy">
+            <p><b>M.V. Javier R.</b> · Córdoba<span>Clínica de pequeños animales</span></p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
     <section class="news" id="novedades" aria-labelledby="novedades-titulo">
       <h2 id="novedades-titulo">Tips y noticias</h2>
       <ul class="news__list">
@@ -262,6 +342,44 @@
     </section>
 
     <!-- CONTACTO -->
+    <!-- ===== Dónde comprar ===== -->
+    <section class="stores" id="donde-comprar" aria-labelledby="stores-titulo">
+      <div class="stores__head">
+        <div>
+          <p class="eyebrow">Dónde comprar</p>
+          <h2 id="stores-titulo">Cerca tuyo, o te lo enviamos</h2>
+        </div>
+        <a class="btn btn--dark" href="https://kume3.mitiendanube.com/" target="_blank" rel="noopener" data-magnetic>Comprar online</a>
+      </div>
+
+      <p class="demo-tag">Listado de ejemplo: reemplazar por la red real de distribuidores de Küme.</p>
+
+      <div class="chips chips--zonas" role="radiogroup" aria-label="Filtrar por zona" data-grupo="zona">
+        <button class="chip" type="button" role="radio" aria-checked="true" data-valor="todas">Todas</button>
+        <button class="chip" type="button" role="radio" aria-checked="false" data-valor="caba">CABA</button>
+        <button class="chip" type="button" role="radio" aria-checked="false" data-valor="gba">GBA</button>
+        <button class="chip" type="button" role="radio" aria-checked="false" data-valor="rosario">Rosario</button>
+        <button class="chip" type="button" role="radio" aria-checked="false" data-valor="cordoba">Córdoba</button>
+      </div>
+
+      <ul class="stores__list" id="stores-list">
+        <li class="store" data-zona="caba"><h3>Veterinaria del Parque</h3><address>Av. Rivadavia 4820 · Caballito</address><a class="link" href="tel:+541100000000">Llamar</a></li>
+        <li class="store" data-zona="caba"><h3>Pet Shop Almagro</h3><address>Medrano 380 · Almagro</address><a class="link" href="tel:+541100000000">Llamar</a></li>
+        <li class="store" data-zona="gba"><h3>Nutrición Animal Vicente López</h3><address>Av. Maipú 2140 · Olivos</address><a class="link" href="tel:+541100000000">Llamar</a></li>
+        <li class="store" data-zona="gba"><h3>Mundo Mascotas Morón</h3><address>Brown 1050 · Morón</address><a class="link" href="tel:+541100000000">Llamar</a></li>
+        <li class="store" data-zona="rosario"><h3>Veterinaria Pichincha</h3><address>Salta 2870 · Rosario</address><a class="link" href="tel:+543410000000">Llamar</a></li>
+        <li class="store" data-zona="rosario"><h3>Pet Shop Fisherton</h3><address>Eva Perón 8420 · Rosario</address><a class="link" href="tel:+543410000000">Llamar</a></li>
+        <li class="store" data-zona="cordoba"><h3>Veterinaria Nueva Córdoba</h3><address>Independencia 1140 · Córdoba</address><a class="link" href="tel:+543510000000">Llamar</a></li>
+      </ul>
+
+      <p class="stores__empty" id="stores-empty" hidden>Todavía no tenemos punto de venta en esa zona. Escribinos y te lo enviamos.</p>
+
+      <div class="stores__cta">
+        <p>¿Tenés un pet shop o una veterinaria y querés vender Küme?</p>
+        <a class="link" href="#contacto">Escribinos y te contamos cómo</a>
+      </div>
+    </section>
+
     <section class="contact" id="contacto" aria-labelledby="contacto-titulo">
       <div class="contact__lead">
         <h2 id="contacto-titulo">Sumá Küme a tu Pet Shop</h2>

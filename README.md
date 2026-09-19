@@ -28,6 +28,7 @@ Notas:
 ## Páginas
 
 - `index.html`: portada. Los cinco productos se abren en un **panel lateral** dentro de la misma página (Perros, Gatos, Omegas 3 y 6, Muscular Plus y Recovery Forte), con beneficios, modo de empleo, análisis nutricional e ingredientes. Se puede compartir un producto abierto con un enlace, por ejemplo `index.html#producto-gatos`.
+- `index.html` suma, respecto de la versión 1, las secciones **Guía rápida**, **Los que eligen** (testimonios) y **Dónde comprar**.
 - `sobre-kume.html`: página "Sobre Küme" con el texto del sitio actual, y los perfiles de Sandra Rivadulla y Daniel Pampin con un resumen de su trayectoria.
 
 Fuentes de los textos: beneficios, indicaciones y modo de empleo salen de kume.com.ar/productos; el análisis nutricional y los ingredientes, del folleto 2023. Los textos están copiados tal cual, incluidos posibles errores del folleto (por ejemplo "albumina", "Saccharomyces cereviciae" en lugar de "cerevisiae", "zarzaparilla"); conviene revisarlos con el cliente.
@@ -44,11 +45,45 @@ Fuentes de los textos: beneficios, indicaciones y modo de empleo salen de kume.c
 | Panel lateral de detalle de producto | `<dialog>` nativo (foco, Esc y fondo), con cambio de producto sin cerrar |
 | Sobre Küme: entrada escalonada, tiles y fotos con paralaje | GSAP + ScrollTrigger |
 | Filas del blog con barrido de color al pasar el mouse | CSS |
+| Guía rápida: el resultado cambia de color y producto al elegir | CSS + GSAP (`fromTo` de opacidad) |
+| Filtro por zona en "Dónde comprar" | JS, sin librerías |
 | Scroll suave | Lenis |
 | Barra de progreso | CSS puro (`animation-timeline: scroll()`), con respaldo en GSAP |
 | Cursor personalizado y botones "magnéticos" | GSAP (solo con mouse) |
 
 Con `prefers-reduced-motion` (o sin JS) el sitio se ve completo y sin animaciones.
+
+
+## Novedades de la versión 2
+
+### Ritmo (lo que más se nota)
+
+| Qué | Antes | Ahora |
+|---|---|---|
+| Scroll fijado de la sección "¿Qué significa holístico?" | 3,2 alturas de pantalla (≈2.880 px para 3 párrafos) | 2,1 alturas (≈1.890 px) |
+| Aire muerto entre los paneles de producto y esa sección | ≈500 px | lo ocupa la guía rápida |
+| Sección de contacto | columnas alineadas arriba, media sección naranja vacía | columnas centradas |
+
+### Secciones nuevas
+
+- **Guía rápida (`#guia`)** — dos preguntas (mascota y objetivo) y recomienda uno de los cinco productos, con el botón que abre el panel de detalle que ya existía. Funciona con teclado (flechas dentro de cada grupo) y **sin JS**: el resultado viene resuelto en el HTML para perro + alimento diario.
+- **Prueba social (`#voces`)** — tres testimonios. Es lo que más falta para una marca premium poco conocida.
+- **Dónde comprar (`#donde-comprar`)** — listado de puntos de venta con filtro por zona, más el enlace a la tienda online y una llamada a pet shops que quieran distribuir. Sin JS se ve el listado completo.
+
+Las tres entran con una animación sobria de aparición; nada nuevo se fija ni se mueve en paralaje.
+
+> **Ojo antes de publicar:** los testimonios y el listado de puntos de venta son **contenido de ejemplo** y están marcados como tales en la propia página (franja gris con borde naranja, clase `.demo-tag`). Hay que reemplazarlos por los reales y borrar esa marca (`.demo-tag` en `index.html` y su regla en `styles.css`).
+
+### Medido en el navegador
+
+| | |
+|---|---|
+| LCP en 4G lento | 1,2 s |
+| CLS | 0,006 |
+| Peso total | 560 kB |
+| Errores de consola o red | ninguno |
+| Desborde horizontal de 360 a 1920 px | ninguno |
+| Con `prefers-reduced-motion` o sin JS | la página se ve completa, la guía y el listado funcionan |
 
 ## Qué se corrigió respecto del sitio actual
 
@@ -67,6 +102,8 @@ Con `prefers-reduced-motion` (o sin JS) el sitio se ve completo y sin animacione
 - **Imagen para redes:** crear `assets/img/og.jpg` (1200×630) y descomentar la etiqueta `og:image` en `index.html`.
 - **Páginas no rehechas:** FAQs, Contacto y las notas del blog enlazan al sitio actual. La tienda sigue en Tienda Nube.
 - Está incluido `assets/img/logo-bold-gatos.svg` (K verde), sin usar todavía.
+- **Testimonios y puntos de venta son de ejemplo**: reemplazar por los reales y sacar la marca `.demo-tag`.
+- Las fotos de mascotas del folleto son chicas (142–285 px). Alcanzan para el mosaico y para las firmas de los testimonios, pero si en algún momento se quieren mostrar grandes hacen falta originales de mayor resolución.
 
 ## Estructura
 

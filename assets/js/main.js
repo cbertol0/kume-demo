@@ -216,6 +216,138 @@
     if (m) open(m[1], null);
   }
 
+
+  /* ------------------------------------------------------------------
+     Grupos de chips con rol radiogroup: clic y flechas del teclado.
+     onPick(valor) se llama cada vez que cambia la selección.
+     ------------------------------------------------------------------ */
+  function radioGroup(group, onPick) {
+    if (!group) return null;
+    const btns = $$('.chip', group);
+    const pick = (btn) => {
+      btns.forEach((b) => {
+        const on = b === btn;
+        b.setAttribute('aria-checked', String(on));
+        b.tabIndex = on ? 0 : -1;
+      });
+      onPick(btn.dataset.valor);
+    };
+    btns.forEach((b, i) => {
+      b.tabIndex = b.getAttribute('aria-checked') === 'true' ? 0 : -1;
+      b.addEventListener('click', () => pick(b));
+      b.addEventListener('keydown', (e) => {
+        const d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+        if (!d) return;
+        e.preventDefault();
+        const next = btns[(i + d + btns.length) % btns.length];
+        next.focus();
+        pick(next);
+      });
+    });
+    return { pick };
+  }
+
+  /* ------------------------------------------------------------------
+     Guía rápida: mascota + objetivo → producto recomendado
+     El resultado ya viene resuelto en el HTML (perro + diario),
+     así que sin JS la sección se lee igual.
+     ------------------------------------------------------------------ */
+  const guia = $('.guia');
+  if (guia) {
+    const PRODUCTOS = {
+      'perros': {
+        color: 'naranja', img: 'assets/img/pack-perros.webp',
+        label: 'Alimento holístico', title: 'Perros',
+        text: 'Un único alimento para todas las etapas de la vida, razas y tamaños. Con componentes herbales naturales y croquetas standard o pequeñas.',
+        pres: '3 kg y 15 kg'
+      },
+      'gatos': {
+        color: 'verde', img: 'assets/img/pack-gatos.webp',
+        label: 'Alimento holístico', title: 'Gatos',
+        text: 'Grain free, libre de granos, con componentes herbales naturales. Con control de bolas de pelo y cuidado del tracto urinario.',
+        pres: '1,5 kg'
+      },
+      'omegas': {
+        color: 'gris', img: 'assets/img/pack-omegas.webp',
+        label: 'Suplemento alimenticio', title: 'Omegas 3 y 6',
+        text: 'Aceite de pescados azules de mares fríos con vitamina E. Favorece una piel humectada y elástica, con el pelo suave y brillante.',
+        pres: '250 ml y 500 ml'
+      },
+      'muscular-plus': {
+        color: 'violeta', img: 'assets/img/pack-muscular-plus.webp',
+        label: 'Concentrado proteico', title: 'Muscular Plus',
+        text: 'Suplemento proteico para el desarrollo muscular de la alta competencia. También como soporte nutricional en pacientes oncológicos.',
+        pres: '250 g'
+      },
+      'recovery-forte': {
+        color: 'violeta', img: 'assets/img/pack-recovery-forte.webp',
+        label: 'Concentrado proteico', title: 'Recovery Forte',
+        text: 'Cuando hay razones específicas para reforzar la alimentación: convalecencia, post cirugía o recuperación de peso.',
+        pres: '150 g y 250 g'
+      }
+    };
+
+    /* objetivo → producto; 'diario' depende de la mascota */
+    const ELECCION = {
+      diario: { perro: 'perros', gato: 'gatos' },
+      pelo: { perro: 'omegas', gato: 'omegas' },
+      muscular: { perro: 'muscular-plus', gato: 'muscular-plus' },
+      recuperacion: { perro: 'recovery-forte', gato: 'recovery-forte' }
+    };
+
+    const PARA = {
+      diario: { perro: 'Para tu perro, todos los días', gato: 'Para tu gato, todos los días' },
+      pelo: { perro: 'Para la piel y el pelo de tu perro', gato: 'Para la piel y el pelo de tu gato' },
+      muscular: { perro: 'Para el desarrollo muscular de tu perro', gato: 'Para el desarrollo muscular de tu gato' },
+      recuperacion: { perro: 'Para la recuperación de tu perro', gato: 'Para la recuperación de tu gato' }
+    };
+
+    const out = $('#guia-resultado');
+    const els = {
+      img: $('#guia-img'), para: $('.guia__para', out), label: $('#guia-label'),
+      title: $('#guia-title'), text: $('#guia-text'), pres: $('#guia-pres'), cta: $('#guia-detalle')
+    };
+    let mascota = 'perro';
+    let objetivo = 'diario';
+
+    const render = () => {
+      const id = ELECCION[objetivo][mascota];
+      const pr = PRODUCTOS[id];
+      out.className = 'guia__out guia__out--' + pr.color;
+      els.img.src = pr.img;
+      els.img.alt = '';
+      els.para.textContent = PARA[objetivo][mascota];
+      els.label.textContent = pr.label;
+      els.title.textContent = pr.title;
+      els.text.textContent = pr.text;
+      els.pres.textContent = pr.pres;
+      els.cta.dataset.detalle = id;
+      if (animate) gsap.fromTo(out, { autoAlpha: .35 }, { autoAlpha: 1, duration: .35, ease: 'power2.out' });
+    };
+
+    radioGroup($('[data-grupo="mascota"]', guia), (v) => { mascota = v; render(); });
+    radioGroup($('[data-grupo="objetivo"]', guia), (v) => { objetivo = v; render(); });
+  }
+
+  /* ------------------------------------------------------------------
+     Dónde comprar: filtro por zona (sin JS se ve el listado completo)
+     ------------------------------------------------------------------ */
+  const stores = $('.stores');
+  if (stores) {
+    const list = $$('.store', stores);
+    const vacio = $('#stores-empty');
+    radioGroup($('[data-grupo="zona"]', stores), (zona) => {
+      let visibles = 0;
+      list.forEach((li) => {
+        const on = zona === 'todas' || li.dataset.zona === zona;
+        li.hidden = !on;
+        if (on) visibles++;
+      });
+      vacio.hidden = visibles > 0;
+      if (animate) ScrollTrigger.refresh();
+    });
+  }
+
   /* Si no se anima, dejamos todo estático y listo */
   if (!animate) {
     root.classList.add('no-motion');
@@ -400,7 +532,7 @@
       scrollTrigger: {
         trigger: story,
         start: 'top top',
-        end: () => '+=' + Math.round(window.innerHeight * 3.2),
+        end: () => '+=' + Math.round(window.innerHeight * 2.1),
         pin: true,
         scrub: 0.6,
         anticipatePin: 1,
@@ -458,6 +590,31 @@
         y: 36, autoAlpha: 0, duration: 0.9, ease: 'power3.out', stagger: 0.09,
         scrollTrigger: { trigger: person, start: 'top 72%' }
       });
+    });
+  }
+
+
+  /* ------------------------------------------------------------------
+     Entrada de las secciones agregadas (sobria: sube y aparece)
+     ------------------------------------------------------------------ */
+  if ($('.guia')) {
+    gsap.from('.guia__head > *, .guia__group, .guia__out', {
+      y: 34, autoAlpha: 0, duration: .8, ease: 'power3.out', stagger: .07,
+      scrollTrigger: { trigger: '.guia', start: 'top 78%' }
+    });
+  }
+
+  if ($('.voces')) {
+    gsap.from('.voce', {
+      y: 48, autoAlpha: 0, duration: .9, ease: 'power3.out', stagger: .12,
+      scrollTrigger: { trigger: '.voces__list', start: 'top 82%' }
+    });
+  }
+
+  if ($('.stores')) {
+    gsap.from('.store', {
+      y: 26, autoAlpha: 0, duration: .6, ease: 'power3.out', stagger: .05,
+      scrollTrigger: { trigger: '.stores__list', start: 'top 85%' }
     });
   }
 
