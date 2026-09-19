@@ -1,7 +1,9 @@
 /* Küme — demo de rediseño
    Animaciones: GSAP + ScrollTrigger, scroll suave con Lenis.
    Todo lo visual se degrada bien: sin JS, sin librerías o con
-   "reducir movimiento" el sitio se ve completo y sin animaciones. */
+   "reducir movimiento" el sitio se ve completo y sin animaciones.
+   Este archivo lo usan la portada (index.html) y "Sobre Küme":
+   cada bloque se activa solo si existen sus elementos. */
 
 (() => {
   'use strict';
@@ -14,6 +16,7 @@
   const hasGSAP = typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined';
   const animate = hasGSAP && !reduceMotion;
 
+  const root = document.documentElement;
   const header = $('.site-header');
   const nav = $('#site-nav');
   const menuBtn = $('.menu-btn');
@@ -29,7 +32,10 @@
     gsap.ticker.lagSmoothing(0);
   }
 
-  /* Enlaces internos (#seccion) */
+  const lockScroll = () => { if (lenis) lenis.stop(); root.classList.add('is-locked'); };
+  const unlockScroll = () => { if (lenis) lenis.start(); root.classList.remove('is-locked'); };
+
+  /* Enlaces internos (#seccion) de la misma página */
   document.addEventListener('click', (e) => {
     const a = e.target.closest('a[href^="#"]');
     if (!a) return;
@@ -65,16 +71,14 @@
     nav.classList.remove('is-open');
     menuBtn.setAttribute('aria-expanded', 'false');
     menuBtn.textContent = 'Menú';
-    if (lenis) lenis.start();
-    else document.body.style.overflow = '';
+    unlockScroll();
   }
   menuBtn.addEventListener('click', () => {
     const open = nav.classList.toggle('is-open');
     menuBtn.setAttribute('aria-expanded', String(open));
     menuBtn.textContent = open ? 'Cerrar' : 'Menú';
     header.classList.remove('is-hidden');
-    if (lenis) open ? lenis.stop() : lenis.start();
-    else document.body.style.overflow = open ? 'hidden' : '';
+    open ? lockScroll() : unlockScroll();
   });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && nav.classList.contains('is-open')) {
@@ -117,9 +121,104 @@
     });
   }
 
+  /* ------------------------------------------------------------------
+     Imágenes remotas con respaldo (fotos que se cargan desde kume.com.ar)
+     - data-fallback-src: si falla, usa otra imagen local
+     - data-fallback-initials: si falla, muestra un bloque de color con iniciales
+     ------------------------------------------------------------------ */
+  const applyFallback = (img) => {
+    if (img.dataset.fallbackSrc && !img.dataset.fellBack) {
+      img.dataset.fellBack = '1';
+      img.removeAttribute('referrerpolicy');
+      img.src = img.dataset.fallbackSrc;
+      return;
+    }
+    if (img.dataset.fallbackInitials && img.parentNode) {
+      const span = document.createElement('span');
+      span.className = 'photo-fallback';
+      span.textContent = img.dataset.fallbackInitials;
+      span.setAttribute('role', 'img');
+      span.setAttribute('aria-label', img.alt || '');
+      img.replaceWith(span);
+    }
+  };
+  $$('img[data-fallback-src], img[data-fallback-initials]').forEach((img) => {
+    img.addEventListener('error', () => applyFallback(img));
+    if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) applyFallback(img);
+  });
+
+  /* ------------------------------------------------------------------
+     Panel lateral de detalle de producto (<dialog>)
+     - Se abre desde los paneles de la portada (data-detalle="id").
+     - Botones para cambiar de producto sin cerrar.
+     - Enlace directo: index.html#producto-gatos
+     - Cierra con Esc, con el botón o tocando el fondo.
+     ------------------------------------------------------------------ */
+  const dialog = $('#detalle');
+  if (dialog && typeof dialog.showModal === 'function') {
+    const items = $$('.detail__item', dialog);
+    const navBtns = $$('[data-producto]', dialog);
+    const scroller = $('.detail__scroll', dialog);
+    const ids = items.map((it) => it.id.replace('det-', ''));
+    let opener = null;
+
+    const show = (id) => {
+      items.forEach((it) => { it.hidden = it.id !== 'det-' + id; });
+      navBtns.forEach((b) => b.setAttribute('aria-current', String(b.dataset.producto === id)));
+      dialog.setAttribute('aria-labelledby', `det-${id}-t`);
+      scroller.scrollTop = 0;
+      history.replaceState(null, '', '#producto-' + id);
+    };
+
+    const open = (id, trigger) => {
+      if (!ids.includes(id)) return;
+      opener = trigger || null;
+      show(id);
+      if (!dialog.open) {
+        dialog.showModal();
+        lockScroll();
+      }
+    };
+
+    const close = () => {
+      if (!dialog.open || dialog.classList.contains('is-closing')) return;
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        dialog.classList.remove('is-closing');
+        dialog.close();
+      };
+      dialog.classList.add('is-closing');
+      dialog.addEventListener('animationend', finish, { once: true });
+      setTimeout(finish, 600);
+    };
+
+    dialog.addEventListener('close', () => {
+      unlockScroll();
+      history.replaceState(null, '', location.pathname + location.search);
+      if (opener) opener.focus();
+    });
+    dialog.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) close(); });
+    $('.detail__close', dialog).addEventListener('click', close);
+    navBtns.forEach((b) => b.addEventListener('click', () => show(b.dataset.producto)));
+
+    $$('[data-detalle]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+        e.preventDefault();
+        open(a.dataset.detalle, a);
+      });
+    });
+
+    const m = location.hash.match(/^#producto-(.+)$/);
+    if (m) open(m[1], null);
+  }
+
   /* Si no se anima, dejamos todo estático y listo */
   if (!animate) {
-    document.documentElement.classList.add('no-motion');
+    root.classList.add('no-motion');
     return;
   }
 
@@ -136,97 +235,98 @@
   /* ------------------------------------------------------------------
      Hero: el lema "La elección de los que eligen" en tipografía variable
      - Al cargar: las letras suben y engordan desde el peso más fino.
-     - Con mouse: cada letra se engorda al acercarse el cursor
-       (del Thin del logo fino al peso del logo bold).
+     - Con mouse: cada letra se engorda al acercarse el cursor.
      - En pantallas táctiles: una onda suave de peso, en bucle.
      - El mosaico de tiles entra escalonado y se desplaza en paralaje.
      ------------------------------------------------------------------ */
   const hero = $('.hero');
-  const slogan = $('.hero__slogan');
+  if (hero) {
+    const slogan = $('.hero__slogan');
 
-  slogan.setAttribute('aria-label', slogan.textContent.replace(/\s+/g, ' ').trim());
-  $$('.hero__line', slogan).forEach((line) => {
-    const text = line.textContent;
-    line.textContent = '';
-    line.setAttribute('aria-hidden', 'true');
-    Array.from(text).forEach((ch) => {
-      const span = document.createElement('span');
-      span.className = 'l';
-      span.textContent = ch === ' ' ? '\u00a0' : ch;
-      line.appendChild(span);
+    slogan.setAttribute('aria-label', slogan.textContent.replace(/\s+/g, ' ').trim());
+    $$('.hero__line', slogan).forEach((line) => {
+      const text = line.textContent;
+      line.textContent = '';
+      line.setAttribute('aria-hidden', 'true');
+      Array.from(text).forEach((ch) => {
+        const span = document.createElement('span');
+        span.className = 'l';
+        span.textContent = ch === ' ' ? '\u00a0' : ch;
+        line.appendChild(span);
+      });
     });
-  });
 
-  const letters = $$('.l', slogan);
-  const BASE = 200;
-  const PEAK = 700;
-  const state = letters.map(() => ({ w: 100, tw: BASE, shown: -1 }));
-  let live = false;
+    const letters = $$('.l', slogan);
+    const BASE = 200;
+    const PEAK = 700;
+    const state = letters.map(() => ({ w: 100, tw: BASE, shown: -1 }));
+    let live = false;
 
-  const paint = () => {
-    letters.forEach((el, i) => {
-      const s = state[i];
-      if (Math.abs(s.w - s.shown) > 0.2) {
-        el.style.setProperty('--w', s.w.toFixed(1));
-        s.shown = s.w;
-      }
-    });
-  };
-
-  gsap.set(letters, { yPercent: 115 });
-  paint();
-  gsap.ticker.add(() => {
-    if (live && finePointer) {
-      state.forEach((s) => { s.w += (s.tw - s.w) * 0.14; });
-    }
-    paint();
-  });
-
-  const intro = gsap.timeline({ onComplete: () => { live = true; startIdle(); } });
-  intro
-    .to(letters, { yPercent: 0, duration: 1.1, ease: 'expo.out', stagger: 0.03 }, 0.1)
-    .to(state, { w: BASE, duration: 1.4, ease: 'power3.out', stagger: 0.03 }, 0.2)
-    .from('.mosaic .tile', {
-      scale: 0.82, autoAlpha: 0, duration: 0.9, ease: 'power3.out',
-      stagger: { amount: 0.9, from: 'random' }
-    }, 0.2);
-
-  if (finePointer) {
-    hero.addEventListener('pointermove', (e) => {
-      if (!live) return;
-      const radius = Math.max(200, window.innerWidth * 0.16);
+    const paint = () => {
       letters.forEach((el, i) => {
-        const r = el.getBoundingClientRect();
-        const dx = e.clientX - (r.left + r.width / 2);
-        const dy = e.clientY - (r.top + r.height / 2);
-        const near = Math.max(0, 1 - Math.hypot(dx, dy) / radius);
-        const k = near * near * (3 - 2 * near); // smoothstep
-        state[i].tw = BASE + (PEAK - BASE) * k;
+        const s = state[i];
+        if (Math.abs(s.w - s.shown) > 0.2) {
+          el.style.setProperty('--w', s.w.toFixed(1));
+          s.shown = s.w;
+        }
+      });
+    };
+
+    gsap.set(letters, { yPercent: 115 });
+    paint();
+    gsap.ticker.add(() => {
+      if (live && finePointer) {
+        state.forEach((s) => { s.w += (s.tw - s.w) * 0.14; });
+      }
+      paint();
+    });
+
+    const intro = gsap.timeline({ onComplete: () => { live = true; startIdle(); } });
+    intro
+      .to(letters, { yPercent: 0, duration: 1.1, ease: 'expo.out', stagger: 0.03 }, 0.1)
+      .to(state, { w: BASE, duration: 1.4, ease: 'power3.out', stagger: 0.03 }, 0.2)
+      .from('.mosaic .tile', {
+        scale: 0.82, autoAlpha: 0, duration: 0.9, ease: 'power3.out',
+        stagger: { amount: 0.9, from: 'random' }
+      }, 0.2);
+
+    if (finePointer) {
+      hero.addEventListener('pointermove', (e) => {
+        if (!live) return;
+        const radius = Math.max(200, window.innerWidth * 0.16);
+        letters.forEach((el, i) => {
+          const r = el.getBoundingClientRect();
+          const dx = e.clientX - (r.left + r.width / 2);
+          const dy = e.clientY - (r.top + r.height / 2);
+          const near = Math.max(0, 1 - Math.hypot(dx, dy) / radius);
+          const k = near * near * (3 - 2 * near); // smoothstep
+          state[i].tw = BASE + (PEAK - BASE) * k;
+        });
+      });
+      hero.addEventListener('pointerleave', () => {
+        state.forEach((s) => { s.tw = BASE; });
+      });
+    }
+
+    function startIdle() {
+      if (finePointer) return;
+      state.forEach((s, i) => {
+        gsap.to(s, {
+          w: 560, duration: 1.4, ease: 'sine.inOut',
+          yoyo: true, repeat: -1, delay: i * 0.09
+        });
+      });
+    }
+
+    /* Mosaico: cada columna se mueve a distinta velocidad al scrollear */
+    const speeds = [-70, 60, -110];
+    $$('.mosaic__col').forEach((col, i) => {
+      gsap.to(col, {
+        y: speeds[i], ease: 'none',
+        scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true }
       });
     });
-    hero.addEventListener('pointerleave', () => {
-      state.forEach((s) => { s.tw = BASE; });
-    });
   }
-
-  function startIdle() {
-    if (finePointer) return;
-    state.forEach((s, i) => {
-      gsap.to(s, {
-        w: 560, duration: 1.4, ease: 'sine.inOut',
-        yoyo: true, repeat: -1, delay: i * 0.09
-      });
-    });
-  }
-
-  /* Mosaico: cada columna se mueve a distinta velocidad al scrollear */
-  const speeds = [-70, 60, -110];
-  $$('.mosaic__col').forEach((col, i) => {
-    gsap.to(col, {
-      y: speeds[i], ease: 'none',
-      scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true }
-    });
-  });
 
   /* ------------------------------------------------------------------
      Botones "magnéticos" y cursor personalizado (solo con mouse)
@@ -252,15 +352,15 @@
       cy(e.clientY);
     }, { passive: true });
     document.addEventListener('pointerover', (e) => {
-      cursor.classList.toggle('is-active', !!e.target.closest('a, button, [data-cursor]'));
+      cursor.classList.toggle('is-active', !!e.target.closest('a, button, summary, [data-cursor]'));
     });
-    document.documentElement.addEventListener('pointerleave', () => cursor.classList.remove('is-visible'));
+    root.addEventListener('pointerleave', () => cursor.classList.remove('is-visible'));
 
     /* Paneles de producto: la silueta y la foto se mueven un poco en sentido contrario al mouse */
     $$('.panel').forEach((panel) => {
       const parts = [
         { el: $('.panel__deco', panel), k: 36 },
-        { el: $('.panel__photo', panel), k: 12 }
+        { el: $('.panel__pack', panel), k: 14 }
       ].filter((p) => p.el).map((p) => ({
         x: gsap.quickTo(p.el, 'x', { duration: 0.9, ease: 'power3' }),
         y: gsap.quickTo(p.el, 'y', { duration: 0.9, ease: 'power3' }),
@@ -280,52 +380,86 @@
      Scrollytelling: la ramita crece a medida que se lee (sección fijada)
      ------------------------------------------------------------------ */
   const story = $('.story');
-  const steps = $$('.step', story);
-  const drawables = $$('.draw', story);
-  const groups = $$('[data-group]', story).map((g) => $$('.leaf', g));
-  const stem = $('.stem', story);
+  if (story) {
+    const steps = $$('.step', story);
+    const drawables = $$('.draw', story);
+    const groups = $$('[data-group]', story).map((g) => $$('.leaf', g));
+    const stem = $('.stem', story);
 
-  drawables.forEach((p) => {
-    const len = p.getTotalLength();
-    p.style.strokeDasharray = len;
-    p.style.strokeDashoffset = len;
-  });
-  gsap.set($$('.leaf', story), { fillOpacity: 0 });
-  story.classList.add('is-pinned');
-  gsap.set(steps.slice(1), { autoAlpha: 0, y: 28 });
+    drawables.forEach((p) => {
+      const len = p.getTotalLength();
+      p.style.strokeDasharray = len;
+      p.style.strokeDashoffset = len;
+    });
+    gsap.set($$('.leaf', story), { fillOpacity: 0 });
+    story.classList.add('is-pinned');
+    gsap.set(steps.slice(1), { autoAlpha: 0, y: 28 });
 
-  const tl = gsap.timeline({
-    defaults: { ease: 'none' },
-    scrollTrigger: {
-      trigger: story,
-      start: 'top top',
-      end: () => '+=' + Math.round(window.innerHeight * 3.2),
-      pin: true,
-      scrub: 0.6,
-      anticipatePin: 1,
-      invalidateOnRefresh: true
-    }
-  });
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: {
+        trigger: story,
+        start: 'top top',
+        end: () => '+=' + Math.round(window.innerHeight * 3.2),
+        pin: true,
+        scrub: 0.6,
+        anticipatePin: 1,
+        invalidateOnRefresh: true
+      }
+    });
 
-  tl.to(stem, { strokeDashoffset: 0, duration: 3 }, 0);
-  steps.forEach((step, i) => {
-    if (i > 0) tl.to(step, { autoAlpha: 1, y: 0, duration: 0.22, ease: 'power2.out' }, i + 0.02);
-    tl.to(groups[i], { strokeDashoffset: 0, duration: 0.7, stagger: 0.12 }, i + 0.05);
-    tl.to(groups[i], { fillOpacity: (idx, el) => (el.classList.contains('leaf--top') ? 1 : 0.9), duration: 0.25 }, i + 0.7);
-    if (i < steps.length - 1) {
-      tl.to(step, { autoAlpha: 0, y: -28, duration: 0.2, ease: 'power2.in' }, i + 0.82);
-    }
-  });
-  tl.to({}, { duration: 0.15 }); // pausa final con todo visible
+    tl.to(stem, { strokeDashoffset: 0, duration: 3 }, 0);
+    steps.forEach((step, i) => {
+      if (i > 0) tl.to(step, { autoAlpha: 1, y: 0, duration: 0.22, ease: 'power2.out' }, i + 0.02);
+      tl.to(groups[i], { strokeDashoffset: 0, duration: 0.7, stagger: 0.12 }, i + 0.05);
+      tl.to(groups[i], { fillOpacity: (idx, el) => (el.classList.contains('leaf--top') ? 1 : 0.9), duration: 0.25 }, i + 0.7);
+      if (i < steps.length - 1) {
+        tl.to(step, { autoAlpha: 0, y: -28, duration: 0.2, ease: 'power2.in' }, i + 0.82);
+      }
+    });
+    tl.to({}, { duration: 0.15 }); // pausa final con todo visible
+  }
 
   /* ------------------------------------------------------------------
-     Profesionales: los nombres se deslizan en sentido opuesto
+     Profesionales (portada): los nombres se deslizan en sentido opuesto
      ------------------------------------------------------------------ */
-  gsap.matchMedia().add('(min-width: 800px)', () => {
-    const trig = { trigger: '.pros__names', start: 'top bottom', end: 'bottom top', scrub: true };
-    gsap.fromTo('.pros__line--a', { xPercent: 9 }, { xPercent: -9, ease: 'none', scrollTrigger: trig });
-    gsap.fromTo('.pros__line--b', { xPercent: -12 }, { xPercent: 6, ease: 'none', scrollTrigger: trig });
-  });
+  if ($('.pros__names')) {
+    gsap.matchMedia().add('(min-width: 800px)', () => {
+      const trig = { trigger: '.pros__names', start: 'top bottom', end: 'bottom top', scrub: true };
+      gsap.fromTo('.pros__line--a', { xPercent: 9 }, { xPercent: -9, ease: 'none', scrollTrigger: trig });
+      gsap.fromTo('.pros__line--b', { xPercent: -12 }, { xPercent: 6, ease: 'none', scrollTrigger: trig });
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Sobre Küme
+     ------------------------------------------------------------------ */
+  if ($('.about-hero')) {
+    gsap.from('.about-hero__copy > *', {
+      y: 40, autoAlpha: 0, duration: 1, ease: 'expo.out', stagger: 0.12, delay: 0.1
+    });
+    gsap.from('.about-hero__fig', { scale: 0.92, autoAlpha: 0, duration: 1.2, ease: 'expo.out', delay: 0.25 });
+
+    gsap.from('.strip .tile', {
+      y: 60, autoAlpha: 0, duration: 0.9, ease: 'power3.out', stagger: 0.07,
+      scrollTrigger: { trigger: '.strip', start: 'top 88%' }
+    });
+
+    $$('.person').forEach((person) => {
+      const photo = $('.person__photo', person);
+      const img = $('img', photo);
+      if (img) {
+        gsap.fromTo(img, { yPercent: -7, scale: 1.14 }, {
+          yPercent: 7, ease: 'none',
+          scrollTrigger: { trigger: photo, start: 'top bottom', end: 'bottom top', scrub: true }
+        });
+      }
+      gsap.from($$('.person__info > *', person), {
+        y: 36, autoAlpha: 0, duration: 0.9, ease: 'power3.out', stagger: 0.09,
+        scrollTrigger: { trigger: person, start: 'top 72%' }
+      });
+    });
+  }
 
   /* Recalcular posiciones cuando termina de cargar la tipografía */
   if (document.fonts && document.fonts.ready) {
