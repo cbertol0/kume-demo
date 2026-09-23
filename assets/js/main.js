@@ -348,6 +348,76 @@
     });
   }
 
+
+  /* ------------------------------------------------------------------
+     v3 · Carrusel de productos (celular y tablet)
+     El carrusel es CSS puro (scroll-snap); esto suma el contador,
+     la barra, las flechas y el producto activo. Funciona también
+     con "reducir movimiento".
+     ------------------------------------------------------------------ */
+  const panelsEl = $('#panels');
+  const carouselMQ = matchMedia('(hover: none), (max-width: 1199.98px)');
+  if (panelsEl) {
+    const cards = $$('.panel', panelsEl);
+    const count = $('.panels-nav__count b');
+    const bar = $('.panels-nav__bar i');
+    const [prev, next] = $$('.panels-nav__btn');
+    let current = -1;
+
+    const setActive = (i) => {
+      if (i === current) return;
+      current = i;
+      cards.forEach((c, k) => c.classList.toggle('is-active', k === i));
+      if (count) count.textContent = String(i + 1).padStart(2, '0');
+      if (bar) bar.style.transform = `scaleX(${(i + 1) / cards.length})`;
+      if (prev) prev.disabled = i === 0;
+      if (next) next.disabled = i === cards.length - 1;
+    };
+
+    const nearest = () => {
+      const left = panelsEl.getBoundingClientRect().left + parseFloat(getComputedStyle(panelsEl).scrollPaddingInlineStart || 0);
+      let best = 0, dist = Infinity;
+      cards.forEach((c, k) => {
+        const d = Math.abs(c.getBoundingClientRect().left - left);
+        if (d < dist) { dist = d; best = k; }
+      });
+      // al final del recorrido, el último queda activo aunque no llegue a alinearse
+      if (panelsEl.scrollLeft + panelsEl.clientWidth >= panelsEl.scrollWidth - 4) best = cards.length - 1;
+      return best;
+    };
+
+    let raf = 0;
+    panelsEl.addEventListener('scroll', () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setActive(nearest()));
+    }, { passive: true });
+
+    const go = (dir) => {
+      const target = cards[Math.max(0, Math.min(cards.length - 1, current + dir))];
+      panelsEl.scrollTo({ left: target.offsetLeft - panelsEl.offsetLeft - parseFloat(getComputedStyle(panelsEl).paddingLeft), behavior: reduceMotion ? 'auto' : 'smooth' });
+    };
+    if (prev) prev.addEventListener('click', () => go(-1));
+    if (next) next.addEventListener('click', () => go(1));
+
+    setActive(0);
+
+    /* Pista de "deslizá": la primera vez que el carrusel entra en pantalla, se asoma el siguiente */
+    if (!reduceMotion && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((en) => {
+          if (!en.isIntersecting || !carouselMQ.matches) return;
+          io.disconnect();
+          if (panelsEl.scrollLeft > 0) return;
+          setTimeout(() => {
+            panelsEl.scrollTo({ left: 70, behavior: 'smooth' });
+            setTimeout(() => panelsEl.scrollTo({ left: 0, behavior: 'smooth' }), 550);
+          }, 350);
+        });
+      }, { threshold: 0.6 });
+      io.observe(panelsEl);
+    }
+  }
+
   /* Si no se anima, dejamos todo estático y listo */
   if (!animate) {
     root.classList.add('no-motion');
@@ -615,6 +685,137 @@
     gsap.from('.store', {
       y: 26, autoAlpha: 0, duration: .6, ease: 'power3.out', stagger: .05,
       scrollTrigger: { trigger: '.stores__list', start: 'top 85%' }
+    });
+  }
+
+
+  /* ==================================================================
+     v3 · Más ritmo
+     ================================================================== */
+
+  /* Cintas cruzadas: marquesina infinita; el scroll la acelera y la da vuelta */
+  const ticker = $('.ticker');
+  if (ticker) {
+    ticker.classList.add('is-js');
+    const loops = $$('.ticker__track', ticker).map((track, i) => {
+      const dir = i === 0 ? -1 : 1;
+      gsap.set(track, { xPercent: dir === -1 ? 0 : -50 });
+      return gsap.to(track, {
+        xPercent: dir === -1 ? -50 : 0,
+        duration: i === 0 ? 38 : 30,
+        ease: 'none',
+        repeat: -1
+      });
+    });
+    let boost = { v: 1 };
+    ScrollTrigger.create({
+      trigger: ticker,
+      start: 'top bottom',
+      end: 'bottom top',
+      onUpdate: (self) => {
+        const v = self.getVelocity();
+        const sign = v < 0 ? -1 : 1;
+        const k = sign * Math.min(9, 1 + Math.abs(v) / 180);
+        gsap.to(boost, {
+          v: k, duration: .25, overwrite: true,
+          onUpdate: () => loops.forEach((l) => l.timeScale(boost.v)),
+          onComplete: () => gsap.to(boost, {
+            v: sign, duration: 1.2, ease: 'power2.out',
+            onUpdate: () => loops.forEach((l) => l.timeScale(boost.v))
+          })
+        });
+      }
+    });
+    gsap.from($$('.ticker__band', ticker), {
+      xPercent: (i) => (i ? 18 : -18), autoAlpha: 0, duration: 1.1, ease: 'expo.out', stagger: .1,
+      scrollTrigger: { trigger: ticker, start: 'top 90%' }
+    });
+  }
+
+  /* Títulos: entran palabra por palabra al aparecer */
+  const splitWords = (el) => {
+    const walk = (node) => {
+      Array.from(node.childNodes).forEach((n) => {
+        if (n.nodeType === 3) {
+          const frag = document.createDocumentFragment();
+          n.textContent.split(/(\s+)/).forEach((part) => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
+            const w = document.createElement('span');
+            w.className = 'w';
+            const wi = document.createElement('span');
+            wi.className = 'wi';
+            wi.textContent = part;
+            w.appendChild(wi);
+            frag.appendChild(w);
+          });
+          n.replaceWith(frag);
+        } else if (n.nodeType === 1) walk(n);
+      });
+    };
+    walk(el);
+    return $$('.wi', el);
+  };
+  $$('.products__intro h2, .guia__head h2, .pros__title, .voces__head h2, .news h2, .stores__head h2, .contact__lead h2').forEach((h) => {
+    const words = splitWords(h);
+    gsap.from(words, {
+      yPercent: 115, duration: 1, ease: 'expo.out', stagger: .045,
+      scrollTrigger: { trigger: h, start: 'top 86%' }
+    });
+  });
+
+  /* Foto de la línea: se destapa de abajo hacia arriba y se acomoda */
+  const linea = $('.products__photo');
+  if (linea) {
+    gsap.fromTo(linea, { clipPath: 'inset(100% 0% 0% 0%)', scale: 1.18 }, {
+      clipPath: 'inset(0% 0% 0% 0%)', scale: 1, duration: 1.3, ease: 'expo.out',
+      scrollTrigger: { trigger: linea, start: 'top 88%' }
+    });
+  }
+
+  /* Paneles de producto: entrada escalonada (en PC); en carrusel, entran de costado */
+  if (panelsEl) {
+    const mm = gsap.matchMedia();
+    mm.add('(hover: hover) and (min-width: 1200px)', () => {
+      gsap.from($$('.panel', panelsEl), {
+        yPercent: 18, clipPath: 'inset(100% 0% 0% 0%)', duration: 1.1, ease: 'expo.out', stagger: .09,
+        scrollTrigger: { trigger: panelsEl, start: 'top 82%' }
+      });
+      gsap.from($$('.panel__pack img', panelsEl), {
+        y: 120, rotation: (i) => (i % 2 ? 6 : -6), duration: 1.3, ease: 'expo.out', stagger: .09, delay: .15,
+        scrollTrigger: { trigger: panelsEl, start: 'top 82%' }
+      });
+    });
+    mm.add('(hover: none), (max-width: 1199.98px)', () => {
+      gsap.from($$('.panel', panelsEl).slice(0, 3), {
+        x: 120, autoAlpha: 0, duration: 1, ease: 'expo.out', stagger: .08,
+        scrollTrigger: { trigger: panelsEl, start: 'top 85%' }
+      });
+    });
+  }
+
+  /* Küme en números: cuentan hasta su valor y engordan de fino a bold (tipografía variable) */
+  const stats = $$('.stat__n');
+  if (stats.length) {
+    stats.forEach((el) => {
+      const end = parseFloat(el.dataset.count);
+      const pre = el.dataset.prefix || '';
+      const suf = el.dataset.suffix || '';
+      const o = { n: 0, w: 100 };
+      el.setAttribute('aria-label', pre + end + suf);
+      const paintStat = () => {
+        el.textContent = pre + Math.round(o.n) + suf;
+        el.style.setProperty('--w', o.w.toFixed(0));
+      };
+      paintStat();
+      gsap.to(o, {
+        n: end, w: 800, duration: end > 9 ? 1.8 : 1.2, ease: 'power3.out', onUpdate: paintStat,
+        scrollTrigger: { trigger: '.stats', start: 'top 75%' }
+      });
+    });
+    gsap.from('.stat', {
+      y: 40, autoAlpha: 0, duration: .9, ease: 'power3.out', stagger: .1,
+      scrollTrigger: { trigger: '.stats', start: 'top 80%' }
     });
   }
 

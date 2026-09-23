@@ -127,3 +127,21 @@ assets/
 ## Nota
 
 Si el repo es público, conviene avisar a Küme antes: el demo usa su marca, sus fotos y sus textos.
+
+
+## Novedades de la versión 3: más ritmo
+
+| Qué | Dónde | Cómo está hecho |
+|---|---|---|
+| **Cintas cruzadas** entre el hero y los productos (atributos de la marca y nombres de producto). Al scrollear se aceleran y cambian de sentido | `.ticker` | GSAP (`timeScale` según la velocidad del scroll). Sin JS se mueven igual por CSS |
+| **Títulos palabra por palabra**: los h2 de productos, guía, profesionales, testimonios, blog, dónde comprar y contacto suben desde una máscara al aparecer | `.w` / `.wi` | GSAP + ScrollTrigger (el texto se parte en JS, así el HTML queda limpio) |
+| **Foto de la línea** que se destapa de abajo hacia arriba | `.products__photo` | `clip-path` + escala |
+| **Carrusel de productos en celular y tablet** (debajo de 1200 px o sin mouse): se desliza con el dedo, se detiene en cada producto, con contador `01 / 05`, barra de progreso y flechas. La primera vez se asoma el siguiente para invitar a deslizar | `#panels`, `.panels-nav` | CSS `scroll-snap`; JS solo para el contador y el producto activo. Funciona sin GSAP y con "reducir movimiento" |
+| **Entrada de los cinco paneles en PC**: suben escalonados y los envases entran girando | `#panels` | GSAP `matchMedia` |
+| **Küme en números**: 1° alimento holístico argentino, +30 años de experiencia, 13 vitaminas y 13 minerales, 5 productos. Los números cuentan y engordan de fino a bold, como el lema del hero | `.stats` | Tipografía variable + GSAP |
+
+Antes, en celular los cinco productos ocupaban casi tres pantallas de scroll; ahora ocupan una. En PC, el espacio en blanco entre el hero y los productos lo ocupan las cintas.
+
+Los datos de "Küme en números" salen del sitio (profesionales con más de 30 años de experiencia) y del detalle de Küme Perros (Vita Forte 13). Conviene confirmarlos con el cliente.
+
+Probado en 390, 820 y 1440 px de ancho: sin errores de consola ni scroll horizontal, con el panel de detalle funcionando desde el carrusel.

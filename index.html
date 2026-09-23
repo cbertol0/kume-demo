@@ -104,6 +104,23 @@
       </div>
     </section>
 
+    <!-- Cintas cruzadas (v3): marquesina con la velocidad ligada al scroll -->
+    <section class="ticker" aria-label="Küme: alimento holístico, componentes herbales naturales, grain free, homologado para exportar a la Unión Europea, industria argentina">
+      <div class="ticker__band ticker__band--a" aria-hidden="true">
+        <div class="ticker__track">
+          <span>Alimento holístico</span><i></i><span>Componentes herbales naturales</span><i></i><span>Grain free</span><i></i><span>Homologado para exportar a la UE</span><i></i><span>Industria argentina</span><i></i>
+          <span>Alimento holístico</span><i></i><span>Componentes herbales naturales</span><i></i><span>Grain free</span><i></i><span>Homologado para exportar a la UE</span><i></i><span>Industria argentina</span><i></i>
+        </div>
+      </div>
+      <div class="ticker__band ticker__band--b" aria-hidden="true">
+        <div class="ticker__track">
+          <span>Perros</span><i></i><span>Gatos</span><i></i><span>Omegas 3 y 6</span><i></i><span>Muscular Plus</span><i></i><span>Recovery Forte</span><i></i>
+          <span>Perros</span><i></i><span>Gatos</span><i></i><span>Omegas 3 y 6</span><i></i><span>Muscular Plus</span><i></i><span>Recovery Forte</span><i></i>
+          <span>Perros</span><i></i><span>Gatos</span><i></i><span>Omegas 3 y 6</span><i></i><span>Muscular Plus</span><i></i><span>Recovery Forte</span><i></i>
+        </div>
+      </div>
+    </section>
+
     <!-- PRODUCTOS -->
     <section class="products" id="productos" aria-labelledby="productos-titulo">
       <div class="products__intro">
@@ -115,7 +132,7 @@
         <img class="products__photo" src="assets/img/kume-linea.jpg" alt="Línea de productos Küme junto a un perro y un gato, con ingredientes naturales." width="566" height="739" loading="lazy">
       </div>
 
-      <ul class="panels">
+      <ul class="panels" id="panels">
         <li class="panel panel--perros panel--naranja">
           <a class="panel__link" href="https://kume.com.ar/productos/" target="_blank" rel="noopener" data-detalle="perros" data-cursor aria-haspopup="dialog">
             <span class="panel__deco" aria-hidden="true"><img src="assets/img/silueta-perro.svg" alt=""></span>
@@ -172,6 +189,16 @@
           </a>
         </li>
       </ul>
+
+      <!-- Controles del carrusel (celular y tablet) -->
+      <div class="panels-nav" aria-hidden="true">
+        <span class="panels-nav__count"><b>01</b> / 05</span>
+        <span class="panels-nav__bar"><i></i></span>
+        <span class="panels-nav__btns">
+          <button type="button" class="panels-nav__btn" data-dir="-1" tabindex="-1" aria-label="Producto anterior">←</button>
+          <button type="button" class="panels-nav__btn" data-dir="1" tabindex="-1" aria-label="Producto siguiente">→</button>
+        </span>
+      </div>
     </section>
 
     <!-- ALIMENTO HOLÍSTICO (scrollytelling) -->
@@ -266,6 +293,17 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- Küme en números (v3): conteo + peso variable -->
+    <section class="stats" aria-labelledby="stats-titulo">
+      <h2 id="stats-titulo" class="sr-only">Küme en números</h2>
+      <ul class="stats__list">
+        <li class="stat"><b class="stat__n" data-count="1" data-suffix="°">1°</b><span class="stat__t">alimento holístico argentino</span></li>
+        <li class="stat"><b class="stat__n" data-count="30" data-prefix="+">+30</b><span class="stat__t">años de experiencia de sus profesionales</span></li>
+        <li class="stat"><b class="stat__n" data-count="13">13</b><span class="stat__t">vitaminas y 13 minerales en Küme Perros</span></li>
+        <li class="stat"><b class="stat__n" data-count="5">5</b><span class="stat__t">productos para perros y gatos</span></li>
+      </ul>
     </section>
 
     <!-- PROFESIONALES -->

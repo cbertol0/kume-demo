@@ -1201,3 +1201,187 @@ html.is-locked { overflow: hidden; }
   .store { grid-template-columns: 1fr; }
   .stores__head { align-items: start; }
 }
+
+
+/* ==========================================================================
+   3.ª versión del demo: más ritmo
+   - .ticker      cintas cruzadas con marquesina (velocidad ligada al scroll)
+   - .w / .wi     títulos que entran palabra por palabra
+   - .panels      carrusel deslizable en celular y tablet
+   - .stats       Küme en números (conteo + peso variable)
+   Todo se ve completo sin JS o con "reducir movimiento".
+   ========================================================================== */
+
+/* ---------- Cintas cruzadas ---------- */
+
+.ticker {
+  position: relative;
+  padding: clamp(40px, 7vw, 96px) 0 clamp(8px, 2vw, 24px);
+  overflow: clip;
+  isolation: isolate;
+}
+.ticker__band {
+  width: 110%;
+  margin-left: -5%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ticker__band--a {
+  position: relative;
+  z-index: 2;
+  background: var(--naranja);
+  color: var(--negro);
+  transform: rotate(-2.2deg);
+  box-shadow: 0 18px 40px rgb(35 31 32 / .18);
+}
+.ticker__band--b {
+  background: var(--negro);
+  color: var(--blanco);
+  transform: rotate(-2.2deg);
+  margin-top: -1px;
+}
+.ticker__track {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(18px, 2.4vw, 36px);
+  padding: clamp(14px, 1.8vw, 24px) 0;
+  will-change: transform;
+}
+.ticker__track span {
+  font-size: clamp(1.5rem, 4.2vw, 3.8rem);
+  font-weight: 700;
+  letter-spacing: -.035em;
+  line-height: 1;
+}
+.ticker__band--b .ticker__track span {
+  font-weight: 200;
+  text-transform: uppercase;
+  letter-spacing: -.02em;
+}
+/* Separador: el cuadradito redondeado de la K */
+.ticker__track i {
+  flex: none;
+  width: clamp(14px, 1.6vw, 22px);
+  aspect-ratio: 1;
+  border-radius: 28%;
+  background: var(--blanco);
+}
+.ticker__band--b .ticker__track i { background: var(--verde); }
+.ticker__band--b .ticker__track i:nth-of-type(2n) { background: var(--naranja); }
+
+/* Sin GSAP, la marquesina igual se mueve (CSS). Con GSAP, la maneja JS. */
+@keyframes ticker-x { to { transform: translateX(-50%); } }
+.ticker__band--a .ticker__track { animation: ticker-x 38s linear infinite; }
+.ticker__band--b .ticker__track { animation: ticker-x 30s linear infinite reverse; }
+.ticker.is-js .ticker__track { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .ticker__track { animation: none !important; }
+}
+
+/* ---------- Títulos palabra por palabra ---------- */
+
+.w {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: .14em;
+  margin-bottom: -.14em;
+}
+.wi { display: inline-block; will-change: transform; }
+
+/* ---------- Carrusel de productos (celular y tablet) ---------- */
+
+.panels-nav { display: none; }
+
+@media (hover: none), (max-width: 1199.98px) {
+  .panels {
+    flex-direction: row;
+    gap: 12px;
+    margin: 0 calc(var(--gutter) * -1);
+    padding: 4px var(--gutter) 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .panels::-webkit-scrollbar { display: none; }
+  .panel {
+    flex: 0 0 min(80vw, 440px);
+    scroll-snap-align: start;
+    min-height: 0;
+  }
+  .panel__link { min-height: 100%; }
+  .panel__pack img { transition: transform .6s var(--ease), opacity .6s; }
+
+  .panels-nav {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
+    align-items: center;
+    margin-top: 22px;
+  }
+  .panels-nav__count { font-weight: 500; font-variant-numeric: tabular-nums; color: var(--gris); }
+  .panels-nav__count b { color: var(--negro); font-weight: 700; }
+  .panels-nav__bar { position: relative; height: 3px; background: var(--humo); border-radius: 3px; overflow: hidden; }
+  .panels-nav__bar i {
+    position: absolute; inset: 0;
+    background: var(--naranja);
+    transform-origin: 0 50%;
+    transform: scaleX(.2);
+    transition: transform .35s var(--ease);
+  }
+  .panels-nav__btns { display: flex; gap: 8px; }
+  .panels-nav__btn {
+    width: 46px; height: 46px;
+    border: 2px solid var(--negro);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--negro);
+    font: inherit;
+    font-size: 1.15rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color .2s, color .2s, opacity .2s;
+  }
+  .panels-nav__btn:hover { background: var(--negro); color: var(--blanco); }
+  .panels-nav__btn:disabled { opacity: .3; pointer-events: none; }
+}
+
+@media (max-width: 700px) {
+  .js .panel:not(.is-active) .panel__pack img { transform: scale(.9) translateY(12px); opacity: .75; }
+}
+
+/* ---------- Küme en números ---------- */
+
+.stats {
+  background: var(--naranja);
+  color: var(--negro);
+  padding: clamp(56px, 8vw, 112px) var(--gutter);
+}
+.stats__list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(28px, 4vw, 56px);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+.stat { display: grid; align-content: start; gap: 10px; border-top: 2px solid var(--negro); padding-top: 18px; }
+.stat__n {
+  --w: 800;
+  font-weight: var(--w);
+  font-size: clamp(3.6rem, 9vw, 9rem);
+  line-height: .9;
+  letter-spacing: -.06em;
+  color: var(--blanco);
+  font-variant-numeric: tabular-nums;
+}
+.stat__t { max-width: 20ch; font-weight: 500; font-size: clamp(1rem, 1.3vw, 1.2rem); line-height: 1.3; }
+
+@media (max-width: 900px) {
+  .stats__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Con las cintas arriba, los productos no necesitan tanto aire */
+.ticker + .products { padding-top: clamp(48px, 6vw, 96px); }
