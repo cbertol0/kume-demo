@@ -333,7 +333,7 @@
      Dónde comprar: filtro por zona (sin JS se ve el listado completo)
      ------------------------------------------------------------------ */
   const stores = $('.stores');
-  if (stores) {
+  if (stores && $('#stores-empty')) {
     const list = $$('.store', stores);
     const vacio = $('#stores-empty');
     radioGroup($('[data-grupo="zona"]', stores), (zona) => {
@@ -681,7 +681,7 @@
     });
   }
 
-  if ($('.stores')) {
+  if ($('.store')) {
     gsap.from('.store', {
       y: 26, autoAlpha: 0, duration: .6, ease: 'power3.out', stagger: .05,
       scrollTrigger: { trigger: '.stores__list', start: 'top 85%' }
@@ -782,7 +782,7 @@
         scrollTrigger: { trigger: panelsEl, start: 'top 82%' }
       });
       gsap.from($$('.panel__pack img', panelsEl), {
-        y: 120, rotation: (i) => (i % 2 ? 6 : -6), duration: 1.3, ease: 'expo.out', stagger: .09, delay: .15,
+        y: 120, duration: 1.3, ease: 'expo.out', stagger: .09, delay: .15,
         scrollTrigger: { trigger: panelsEl, start: 'top 82%' }
       });
     });
