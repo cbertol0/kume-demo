@@ -781,8 +781,8 @@
         yPercent: 18, clipPath: 'inset(100% 0% 0% 0%)', duration: 1.1, ease: 'expo.out', stagger: .09,
         scrollTrigger: { trigger: panelsEl, start: 'top 82%' }
       });
-      gsap.from($$('.panel__pack img', panelsEl), {
-        y: 120, duration: 1.3, ease: 'expo.out', stagger: .09, delay: .15,
+      gsap.fromTo($$('.panel__pack img', panelsEl), { y: 120 }, {
+        y: 0, clearProps: 'transform', duration: 1.3, ease: 'expo.out', stagger: .09, delay: .15,
         scrollTrigger: { trigger: panelsEl, start: 'top 82%' }
       });
     });
