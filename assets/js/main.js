@@ -94,9 +94,9 @@
   if (form) {
     const status = $('.form__status', form);
     const messages = {
-      nombre: 'Escribí tu nombre.',
-      email: 'Escribí un email válido, por ejemplo nombre@dominio.com.',
-      mensaje: 'Contanos en qué te podemos ayudar.'
+      nombre: 'Escriba su nombre.',
+      email: 'Escriba un email válido, por ejemplo nombre@dominio.com.',
+      mensaje: 'Cuéntenos en qué podemos ayudarle.'
     };
     const showError = (field, on) => {
       field.setAttribute('aria-invalid', on ? 'true' : 'false');
@@ -281,7 +281,7 @@
       },
       'recovery-forte': {
         color: 'violeta', img: 'assets/img/pack-recovery-forte.webp',
-        label: 'Concentrado proteico', title: 'Recovery Forte',
+        label: 'Concentrado proteico en polvo', title: 'Recovery Forte',
         text: 'Cuando hay razones específicas para reforzar la alimentación y la recuperación en adultos y cachorros.',
         pres: '250 g'
       }
@@ -296,10 +296,10 @@
     };
 
     const PARA = {
-      diario: { perro: 'Para tu perro, todos los días', gato: 'Para tu gato, todos los días' },
-      pelo: { perro: 'Para la piel y el pelo de tu perro', gato: 'Para la piel y el pelo de tu gato' },
-      muscular: { perro: 'Para el desarrollo muscular de tu perro', gato: 'Para el desarrollo muscular de tu gato' },
-      recuperacion: { perro: 'Para la recuperación de tu perro', gato: 'Para la recuperación de tu gato' }
+      diario: { perro: 'Para su perro, todos los días', gato: 'Para su gato, todos los días' },
+      pelo: { perro: 'Para la piel y el pelo de su perro', gato: 'Para la piel y el pelo de su gato' },
+      muscular: { perro: 'Para el desarrollo muscular de su perro', gato: 'Para el desarrollo muscular de su gato' },
+      recuperacion: { perro: 'Para la recuperación de su perro', gato: 'Para la recuperación de su gato' }
     };
 
     const out = $('#guia-resultado');
