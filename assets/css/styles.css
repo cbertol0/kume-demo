@@ -313,14 +313,44 @@ html.is-locked { overflow: hidden; }
 
 .products__intro {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
-  gap: clamp(28px, 6vw, 96px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+  gap: clamp(20px, 5vw, 80px);
   align-items: end;
-  margin-bottom: clamp(36px, 5vw, 72px);
+  margin-bottom: clamp(8px, 2vw, 24px);
 }
 .products__intro h2 { max-width: 20ch; }
-.products__note { max-width: 40ch; margin: 24px 0; color: var(--gris); }
-.products__photo { width: 100%; height: auto; }
+.products__note { max-width: 40ch; margin: 0 0 18px; color: var(--gris); }
+
+/* Escena de la línea: capas del folleto (perro, gato, ingredientes) + envases.
+   Las fotos con fondo blanco se funden con mix-blend-mode: multiply, por eso la escena va sobre blanco. */
+.escena {
+  position: relative;
+  isolation: isolate;
+  background: #fff;
+  overflow: hidden;
+  margin: 0 calc(var(--gutter) * -1) clamp(36px, 5vw, 72px);
+}
+.escena__lienzo {
+  position: relative;
+  width: min(100%, 1240px);
+  margin: 0 auto;
+  aspect-ratio: 2480 / 1860;
+}
+.escena__capa {
+  position: absolute;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
+}
+.escena__animal, .escena__ing { mix-blend-mode: multiply; }
+.escena__prod { filter: drop-shadow(0 18px 22px rgb(0 0 0 / .28)); z-index: 2; }
+.escena__ing { z-index: 3; }
+
+@media (max-width: 700px) {
+  /* en el celular la escena se agranda y se recorta a los costados, para que los envases se lean */
+  .escena__lienzo { width: 110%; margin-left: -5%; }
+}
 
 .panels { display: flex; flex-direction: column; gap: 8px; }
 
@@ -901,7 +931,6 @@ html.is-locked { overflow: hidden; }
   .hero__slogan { margin: 28px 0 32px; font-size: clamp(2.8rem, 13.5vw, 5.5rem); }
   .mosaic { margin-top: 12px; }
   .products__intro { grid-template-columns: 1fr; }
-  .products__photo { max-width: 320px; }
 }
 
 /* ---------- Navegación móvil ---------- */
@@ -1195,7 +1224,9 @@ html.is-locked { overflow: hidden; }
   gap: 8px 20px;
   padding-top: 8px;
 }
-.stores__cta p { font-weight: 500; }
+.stores__cta p { font-weight: 600; font-size: clamp(1.15rem, 1.6vw, 1.4rem); }
+.stores__cta .link { font-size: clamp(1.05rem, 1.4vw, 1.25rem); }
+.stores__head .eyebrow { font-size: clamp(1rem, 1.4vw, 1.2rem); color: var(--naranja); }
 
 @media (max-width: 720px) {
   .store { grid-template-columns: 1fr; }

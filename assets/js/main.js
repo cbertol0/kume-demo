@@ -1,8 +1,8 @@
-/* Küme — demo de rediseño
+/* küme — demo de rediseño
    Animaciones: GSAP + ScrollTrigger, scroll suave con Lenis.
    Todo lo visual se degrada bien: sin JS, sin librerías o con
    "reducir movimiento" el sitio se ve completo y sin animaciones.
-   Este archivo lo usan la portada (index.html) y "Sobre Küme":
+   Este archivo lo usan la portada (index.html) y "Sobre küme":
    cada bloque se activa solo si existen sus elementos. */
 
 (() => {
@@ -116,7 +116,7 @@
         if (bad && !firstInvalid) firstInvalid = f;
       });
       if (firstInvalid) { firstInvalid.focus(); return; }
-      status.textContent = 'Demo: en el sitio final este mensaje llegaría a info@kume.com.ar.';
+      status.textContent = 'Demo: En el sitio final este mensaje llegaría a info@kume.com.ar.';
       form.reset();
     });
   }
@@ -265,25 +265,25 @@
         color: 'verde', img: 'assets/img/pack-gatos.webp',
         label: 'Alimento holístico', title: 'Gatos',
         text: 'Grain free, libre de granos, con componentes herbales naturales. Con control de bolas de pelo y cuidado del tracto urinario.',
-        pres: '1,5 kg'
+        pres: '1,5 kg y 10 kg'
       },
       'omegas': {
         color: 'gris', img: 'assets/img/pack-omegas.webp',
-        label: 'Suplemento alimenticio', title: 'Omegas 3 y 6',
+        label: 'Suplemento dietario', title: 'Omegas 3 y 6',
         text: 'Aceite de pescados azules de mares fríos con vitamina E. Favorece una piel humectada y elástica, con el pelo suave y brillante.',
         pres: '250 ml y 500 ml'
       },
       'muscular-plus': {
         color: 'violeta', img: 'assets/img/pack-muscular-plus.webp',
-        label: 'Concentrado proteico', title: 'Muscular Plus',
-        text: 'Suplemento proteico para el desarrollo muscular de la alta competencia. También como soporte nutricional en pacientes oncológicos.',
+        label: 'Concentrado proteico en polvo', title: 'Muscular Plus',
+        text: 'El suplemento proteico para el desarrollo y regeneración muscular - alta competencia -',
         pres: '250 g'
       },
       'recovery-forte': {
         color: 'violeta', img: 'assets/img/pack-recovery-forte.webp',
         label: 'Concentrado proteico', title: 'Recovery Forte',
-        text: 'Cuando hay razones específicas para reforzar la alimentación: convalecencia, post cirugía o recuperación de peso.',
-        pres: '150 g y 250 g'
+        text: 'Cuando hay razones específicas para reforzar la alimentación y la recuperación en adultos y cachorros.',
+        pres: '250 g'
       }
     };
 
@@ -634,7 +634,7 @@
   }
 
   /* ------------------------------------------------------------------
-     Sobre Küme
+     Sobre küme
      ------------------------------------------------------------------ */
   if ($('.about-hero')) {
     gsap.from('.about-hero__copy > *', {
@@ -764,13 +764,43 @@
     });
   });
 
-  /* Foto de la línea: se destapa de abajo hacia arriba y se acomoda */
-  const linea = $('.products__photo');
-  if (linea) {
-    gsap.fromTo(linea, { clipPath: 'inset(100% 0% 0% 0%)', scale: 1.18 }, {
-      clipPath: 'inset(0% 0% 0% 0%)', scale: 1, duration: 1.3, ease: 'expo.out',
-      scrollTrigger: { trigger: linea, start: 'top 88%' }
+  /* Escena de la línea: los envases suben al frente, perro y gato entran de los costados,
+     los ingredientes flotan a distinta velocidad con el scroll (y con el mouse en PC) */
+  const escena = $('.escena');
+  if (escena) {
+    const prods = $$('.escena__prod', escena);
+    const ings = $$('.escena__ing', escena);
+    const perro = $('.escena__perro', escena);
+    const gato = $('.escena__gato', escena);
+    const tl = gsap.timeline({ scrollTrigger: { trigger: escena, start: 'top 80%' } });
+    tl.fromTo([perro, gato], { autoAlpha: 0, xPercent: (i) => (i ? 18 : -18) }, { autoAlpha: 1, xPercent: 0, duration: 1.4, ease: 'expo.out' })
+      .fromTo(prods, { autoAlpha: 0, yPercent: 22 }, { autoAlpha: 1, yPercent: 0, duration: 1.2, ease: 'expo.out', stagger: .08 }, .15)
+      .fromTo(ings, { autoAlpha: 0, yPercent: 60 }, { autoAlpha: 1, yPercent: 0, duration: 1.1, ease: 'power3.out', stagger: { each: .04, from: 'center' } }, .35);
+    /* parallax con el scroll: cada capa se mueve según su profundidad (data-depth) */
+    $$('.escena__capa', escena).forEach((el) => {
+      const d = parseFloat(el.dataset.depth) || .3;
+      gsap.fromTo(el, { y: d * 70 }, {
+        y: d * -70, ease: 'none',
+        scrollTrigger: { trigger: escena, start: 'top bottom', end: 'bottom top', scrub: true }
+      });
     });
+    /* PC: con el mouse la escena gana profundidad; los envases se destacan al pasar por encima */
+    if (finePointer) {
+      const capas = $$('.escena__capa', escena).map((el) => ({
+        x: gsap.quickTo(el, 'x', { duration: 1, ease: 'power3' }),
+        d: parseFloat(el.dataset.depth) || .3
+      }));
+      escena.addEventListener('pointermove', (e) => {
+        const r = escena.getBoundingClientRect();
+        const nx = (e.clientX - r.left) / r.width - 0.5;
+        capas.forEach((c) => c.x(-nx * c.d * 60));
+      });
+      escena.addEventListener('pointerleave', () => capas.forEach((c) => c.x(0)));
+      prods.forEach((el) => {
+        el.addEventListener('pointerenter', () => gsap.to(el, { scale: 1.05, duration: .5, ease: 'power3.out' }));
+        el.addEventListener('pointerleave', () => gsap.to(el, { scale: 1, duration: .6, ease: 'power3.out' }));
+      });
+    }
   }
 
   /* Paneles de producto: entrada escalonada (en PC); en carrusel, entran de costado */
@@ -794,7 +824,7 @@
     });
   }
 
-  /* Küme en números: cuentan hasta su valor y engordan de fino a bold (tipografía variable) */
+  /* küme en números: cuentan hasta su valor y engordan de fino a bold (tipografía variable) */
   const stats = $$('.stat__n');
   if (stats.length) {
     stats.forEach((el) => {
