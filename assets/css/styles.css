@@ -1416,3 +1416,108 @@ html.is-locked { overflow: hidden; }
 
 /* Con las cintas arriba, los productos no necesitan tanto aire */
 .ticker + .products { padding-top: clamp(48px, 6vw, 96px); }
+
+
+/* ==========================================================================
+   Blog: índice y notas
+   ========================================================================== */
+
+.page-blog main, .page-nota main { padding-top: var(--header-h); }
+
+.news__all { margin-top: clamp(24px, 3vw, 40px); }
+
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags li {
+  font-size: .78rem; font-weight: 600; letter-spacing: .04em;
+  padding: 3px 10px; border: 1.5px solid currentColor; border-radius: 999px;
+}
+.tags .tag--nueva { background: var(--naranja); border-color: var(--naranja); color: var(--negro); }
+
+.blog-hero { padding: clamp(56px, 9vw, 130px) var(--gutter) clamp(28px, 4vw, 56px); max-width: 1440px; margin: 0 auto; }
+.blog-hero__title { font-size: clamp(3rem, 9vw, 8rem); font-weight: 300; line-height: .95; letter-spacing: -.045em; }
+.blog-hero__lead { max-width: 44ch; margin-top: 22px; font-size: clamp(1.1rem, 1.6vw, 1.4rem); color: var(--gris); }
+
+.blog-list { padding: 0 var(--gutter) clamp(64px, 9vw, 120px); max-width: 1440px; margin: 0 auto; }
+.blog-list__title { margin-bottom: clamp(24px, 3vw, 40px); }
+.blog-list--mas { padding-top: clamp(56px, 8vw, 110px); }
+
+/* Nota destacada */
+.bfeat { margin-bottom: clamp(16px, 2vw, 24px); }
+.bfeat__link {
+  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  background: var(--naranja); color: var(--negro); text-decoration: none; overflow: hidden;
+}
+.bfeat__media { display: block; overflow: hidden; aspect-ratio: 3 / 2; }
+.bfeat__img, .bcard__img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+.bfeat__body { display: flex; flex-direction: column; gap: 14px; justify-content: center; padding: clamp(24px, 4vw, 64px); }
+.bfeat__kicker, .bcard__kicker { font-size: .9rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.bfeat__title { font-size: clamp(2rem, 4vw, 3.6rem); color: var(--blanco); font-weight: 400; }
+.bfeat__bajada { font-size: clamp(1.05rem, 1.4vw, 1.25rem); max-width: 40ch; }
+.bfeat__meta, .bcard__meta { font-size: .9rem; font-weight: 500; }
+
+/* Grilla de notas */
+.bgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 2vw, 24px); }
+.bcard__link { display: flex; flex-direction: column; height: 100%; background: var(--humo); text-decoration: none; overflow: hidden; }
+.bcard__media { display: block; overflow: hidden; aspect-ratio: 3 / 2; }
+.bcard__body { display: flex; flex-direction: column; gap: 10px; padding: clamp(18px, 2vw, 28px); flex: 1; }
+.bcard__kicker { color: var(--naranja); }
+.bcard__title { font-size: clamp(1.4rem, 2vw, 1.9rem); font-weight: 400; }
+.bcard__bajada { color: var(--gris); }
+.bcard__meta { margin-top: auto; padding-top: 8px; }
+.bcard .tags li { color: var(--gris); }
+.bcard .tags .tag--nueva { color: var(--negro); }
+
+@media (hover: hover) {
+  .bfeat__link:hover .bfeat__img, .bcard__link:hover .bcard__img { transform: scale(1.05); }
+  .bcard__link:hover .bcard__title { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; text-decoration-color: var(--naranja); }
+}
+@media (max-width: 1000px) { .bgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 800px) {
+  .bfeat__link { grid-template-columns: 1fr; }
+  .bgrid { grid-template-columns: 1fr; }
+}
+
+/* Nota */
+.nota__head { max-width: 1100px; margin: 0 auto; padding: clamp(40px, 7vw, 100px) var(--gutter) clamp(28px, 4vw, 48px); }
+.nota__back { display: inline-block; margin-bottom: clamp(28px, 4vw, 48px); }
+.nota__title { font-size: clamp(2.4rem, 6vw, 5.2rem); font-weight: 300; line-height: 1.02; letter-spacing: -.04em; text-wrap: balance; }
+.nota__bajada { max-width: 50ch; margin-top: 22px; font-size: clamp(1.15rem, 1.7vw, 1.45rem); color: var(--gris); }
+.nota__meta { margin-top: 20px; font-size: .95rem; font-weight: 600; }
+.nota__cover { max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
+.nota__cover-img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; }
+
+.nota__wrap { max-width: 760px; margin: 0 auto; padding: clamp(40px, 6vw, 80px) var(--gutter) clamp(56px, 8vw, 100px); }
+.nota__body { font-size: clamp(1.06rem, 1rem + .3vw, 1.22rem); line-height: 1.75; }
+.nota__body > * + * { margin-top: 1.1em; }
+.nota__body h2 { margin-top: 2em; font-size: clamp(1.6rem, 2.8vw, 2.3rem); font-weight: 400; }
+.nota__lead { font-size: 1.2em; line-height: 1.6; }
+.nota__lead::first-letter {
+  float: left; margin: .06em .12em 0 0; font-size: 3.6em; line-height: .8; font-weight: 300; color: var(--naranja);
+}
+.nota__lista { display: grid; gap: 1em; }
+.nota__lista li { position: relative; padding-left: 28px; }
+.nota__lista li::before { content: ""; position: absolute; left: 0; top: .62em; width: 12px; height: 12px; border-radius: 50%; background: var(--naranja); }
+.nota__cita { margin: 2em 0; padding: clamp(24px, 3vw, 40px); background: var(--negro); color: var(--blanco); }
+.nota__cita p { font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1.35; font-weight: 300; letter-spacing: -.01em; }
+.nota__cita footer { margin-top: 16px; font-size: .95rem; color: var(--naranja); font-weight: 600; }
+.nota__split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.6em 0; }
+.nota__split-col { padding: 22px; }
+.nota__split-col p + p { margin-top: 8px; }
+.nota__split-col--gatos { background: var(--verde); }
+.nota__split-col--perros { background: var(--naranja); }
+.nota__split-t { font-weight: 700; font-size: .85rem; letter-spacing: .1em; text-transform: uppercase; }
+@media (max-width: 600px) { .nota__split { grid-template-columns: 1fr; } }
+
+.nota__firmas { display: grid; gap: 18px; margin-top: clamp(40px, 5vw, 64px); padding-top: 24px; border-top: 2px solid var(--negro); }
+.nota__firma p { font-size: .95rem; color: var(--gris); }
+.nota__firma .nota__firma-n { font-size: 1.1rem; font-weight: 600; color: var(--negro); }
+
+.nota-aviso { margin-top: clamp(32px, 4vw, 48px); padding: 18px 20px; background: var(--humo); font-size: .95rem; color: var(--gris); }
+.nota-aviso--blog { max-width: 1440px; margin: 0 auto clamp(64px, 8vw, 100px); padding: 0 var(--gutter); background: none; }
+
+.nota-cta {
+  display: flex; flex-wrap: wrap; gap: 24px 48px; align-items: center; justify-content: space-between;
+  padding: clamp(56px, 8vw, 110px) var(--gutter); background: var(--naranja);
+}
+.nota-cta h2 { color: var(--blanco); font-weight: 400; max-width: 18ch; }
+.bfeat .tags .tag--nueva { background: var(--negro); border-color: var(--negro); color: var(--blanco); }
