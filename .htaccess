@@ -1,0 +1,47 @@
+# küme — configuración del servidor (Apache / LiteSpeed en DonWeb)
+
+Options -Indexes
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Siempre con https y sin "www"
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^ https://kume.com.ar%{REQUEST_URI} [L,R=301]
+
+  # Direcciones del sitio anterior (WordPress) → páginas nuevas
+  RewriteRule ^productos/?$ /#productos [NE,L,R=301]
+  RewriteRule ^sobre-kume/?$ /sobre-kume.html [L,R=301]
+  RewriteRule ^blog/?$ /blog.html [L,R=301]
+  RewriteRule ^contacto/?$ /#contacto [NE,L,R=301]
+  RewriteRule ^contactanos/?$ /#contacto [NE,L,R=301]
+  RewriteRule ^dia-del-perro-es-bueno-humanizar-a-nuestras-mascotas/?$ /nota-humanizar-mascotas.html [L,R=301]
+  RewriteRule ^alimentacion-en-perras-durante-la-gestacion-y-el-servicio/?$ /nota-gestacion-y-servicio.html [L,R=301]
+  RewriteRule ^que-sucede-en-el-organismo-de-perrros-y-gatos-de-edad-avanzada/?$ /nota-edad-avanzada.html [L,R=301]
+  RewriteRule ^wp-content/uploads/2024/01/CV_Dra_Sandra_-Rivadulla\.pdf$ /assets/docs/cv-sandra-rivadulla.pdf [L,R=301]
+  RewriteRule ^wp-content/uploads/2024/01/CV_Dra_Daniel_Pampin\.pdf$ /assets/docs/cv-daniel-pampin.pdf [L,R=301]
+</IfModule>
+
+# Compresión y caché del navegador
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript image/svg+xml application/json
+</IfModule>
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType application/pdf "access plus 7 days"
+</IfModule>
+
+# No publicar archivos internos
+<FilesMatch "^(README\.md|\.git.*)$">
+  Require all denied
+</FilesMatch>

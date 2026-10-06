@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>küme | Alimento holístico para perros y gatos</title>
   <meta name="description" content="küme, el primer alimento holístico argentino para perros y gatos, con componentes herbales naturales. Conozca los productos y compre en la tienda online.">
+  <link rel="canonical" href="https://kume.com.ar/">
+  <meta property="og:url" content="https://kume.com.ar/">
+  <meta property="og:image" content="https://kume.com.ar/assets/img/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta name="theme-color" content="#ffffff">
 
   <meta property="og:type" content="website">
@@ -12,7 +17,6 @@
   <meta property="og:title" content="küme | Alimento holístico para perros y gatos">
   <meta property="og:description" content="La elección de los que eligen. Primer alimento holístico argentino.">
   <meta property="og:locale" content="es_AR">
-  <!-- Agregar cuando exista la imagen (1200x630): <meta property="og:image" content="https://TU-USUARIO.github.io/kume-demo/assets/img/og.jpg"> -->
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
@@ -141,7 +145,7 @@
 
       <ul class="panels" id="panels">
         <li class="panel panel--perros panel--naranja">
-          <a class="panel__link" href="https://kume.com.ar/productos/" target="_blank" rel="noopener" data-detalle="perros" data-cursor aria-haspopup="dialog">
+          <a class="panel__link" href="#producto-perros" data-detalle="perros" data-cursor aria-haspopup="dialog">
             <span class="panel__deco" aria-hidden="true"><img src="assets/img/silueta-perro.svg" alt=""></span>
             <span class="panel__pack"><img src="assets/img/pack-perros.webp" alt="" width="652" height="809" loading="lazy"></span>
             <span class="panel__body">
@@ -152,7 +156,7 @@
           </a>
         </li>
         <li class="panel panel--gatos panel--verde">
-          <a class="panel__link" href="https://kume.com.ar/productos/" target="_blank" rel="noopener" data-detalle="gatos" data-cursor aria-haspopup="dialog">
+          <a class="panel__link" href="#producto-gatos" data-detalle="gatos" data-cursor aria-haspopup="dialog">
             <span class="panel__deco" aria-hidden="true"><img src="assets/img/silueta-gato.svg" alt=""></span>
             <span class="panel__pack"><img src="assets/img/pack-gatos.webp" alt="" width="761" height="880" loading="lazy"></span>
             <span class="panel__body">
@@ -163,7 +167,7 @@
           </a>
         </li>
         <li class="panel panel--omegas panel--gris">
-          <a class="panel__link" href="https://kume.com.ar/productos/" target="_blank" rel="noopener" data-detalle="omegas" data-cursor aria-haspopup="dialog">
+          <a class="panel__link" href="#producto-omegas" data-detalle="omegas" data-cursor aria-haspopup="dialog">
             <span class="panel__deco" aria-hidden="true"><img src="assets/img/silueta-perro.svg" alt=""><img src="assets/img/silueta-gato.svg" alt=""></span>
             <span class="panel__pack"><img src="assets/img/pack-omegas.webp" alt="" width="360" height="880" loading="lazy"></span>
             <span class="panel__body">
@@ -174,7 +178,7 @@
           </a>
         </li>
         <li class="panel panel--muscular-plus panel--violeta">
-          <a class="panel__link" href="https://kume.com.ar/productos/" target="_blank" rel="noopener" data-detalle="muscular-plus" data-cursor aria-haspopup="dialog">
+          <a class="panel__link" href="#producto-muscular-plus" data-detalle="muscular-plus" data-cursor aria-haspopup="dialog">
             <span class="panel__deco" aria-hidden="true"><img src="assets/img/silueta-perro.svg" alt=""><img src="assets/img/silueta-gato.svg" alt=""></span>
             <span class="panel__pack"><img src="assets/img/pack-muscular-plus.webp" alt="" width="333" height="412" loading="lazy"></span>
             <span class="panel__body">
@@ -185,7 +189,7 @@
           </a>
         </li>
         <li class="panel panel--recovery-forte panel--violeta">
-          <a class="panel__link" href="https://kume.com.ar/productos/" target="_blank" rel="noopener" data-detalle="recovery-forte" data-cursor aria-haspopup="dialog">
+          <a class="panel__link" href="#producto-recovery-forte" data-detalle="recovery-forte" data-cursor aria-haspopup="dialog">
             <span class="panel__deco" aria-hidden="true"><img src="assets/img/silueta-perro.svg" alt=""><img src="assets/img/silueta-gato.svg" alt=""></span>
             <span class="panel__pack"><img src="assets/img/pack-recovery-forte.webp" alt="" width="337" height="413" loading="lazy"></span>
             <span class="panel__body">
@@ -247,7 +251,7 @@
           <span class="guia__text" id="guia-text">Un único alimento para todas las etapas de la vida, razas y tamaños. Con componentes herbales naturales y croquetas standard o pequeñas.</span>
           <span class="guia__pres" id="guia-pres">3 kg y 15 kg</span>
           <span class="guia__actions">
-            <a class="btn btn--dark btn--small" id="guia-detalle" href="https://kume.com.ar/productos/" data-detalle="perros" aria-haspopup="dialog">Ver detalle</a>
+            <a class="btn btn--dark btn--small" id="guia-detalle" href="#producto-perros" data-detalle="perros" aria-haspopup="dialog">Ver detalle</a>
             <a class="link" href="https://kume3.mitiendanube.com/" target="_blank" rel="noopener">Comprar online</a>
           </span>
         </span>
@@ -389,7 +393,7 @@
         <a class="btn btn--dark" data-magnetic href="mailto:info@kume.com.ar">Escríbanos</a>
       </div>
 
-      <form class="form" id="form-contacto" novalidate>
+      <form class="form" id="form-contacto" action="contacto.php" method="post" novalidate>
         <h3>¿Tiene una consulta?</h3>
         <div class="field">
           <label for="nombre">Nombre</label>
@@ -405,6 +409,10 @@
           <label for="mensaje">Mensaje</label>
           <textarea id="mensaje" name="mensaje" rows="4" required></textarea>
           <span class="field__error" data-error-for="mensaje"></span>
+        </div>
+        <div class="field field--trampa" aria-hidden="true">
+          <label for="web">No completar</label>
+          <input id="web" name="web" type="text" tabindex="-1" autocomplete="off">
         </div>
         <button class="btn btn--dark" type="submit">Enviar consulta</button>
         <p class="form__status" role="status" aria-live="polite"></p>
@@ -432,7 +440,7 @@
         <li><a href="https://www.youtube.com/@kume.alimento" target="_blank" rel="noopener"><svg class="soc-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg><span>YouTube</span></a></li>
       </ul>
     </div>
-    <p class="site-footer__legal">Consulte siempre con su Médico Veterinario. © 2026 küme Alimento. Demo de rediseño con fines de presentación: La marca, los textos y las imágenes pertenecen a küme y este no es el sitio oficial.</p>
+    <p class="site-footer__legal">Consulte siempre con su Médico Veterinario. © 2026 küme Alimento.</p>
   </footer>
 
   <!-- DETALLE DE PRODUCTO (panel lateral) -->

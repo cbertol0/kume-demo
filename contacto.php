@@ -1,0 +1,53 @@
+<?php
+// Formulario de contacto de küme: recibe nombre, email y mensaje y los envía a info@kume.com.ar.
+header('Content-Type: application/json; charset=utf-8');
+header('X-Content-Type-Options: nosniff');
+
+const DESTINO = 'info@kume.com.ar';
+const REMITENTE = 'web@kume.com.ar'; // casilla del mismo dominio, para que el mail no caiga en spam
+
+function responder($ok, $error = '', $codigo = 200) {
+  http_response_code($codigo);
+  echo json_encode(['ok' => $ok, 'error' => $error], JSON_UNESCAPED_UNICODE);
+  exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') responder(false, 'Método no permitido.', 405);
+
+// Trampa para robots: campo oculto que una persona nunca completa
+if (!empty($_POST['web'])) responder(true);
+
+$limpiar = function ($v, $max) {
+  $v = trim((string)($v ?? ''));
+  $v = str_replace(["\r", "\0"], '', $v);
+  return mb_substr($v, 0, $max, 'UTF-8');
+};
+$nombre  = $limpiar($_POST['nombre'] ?? '', 120);
+$email   = $limpiar($_POST['email'] ?? '', 160);
+$mensaje = $limpiar($_POST['mensaje'] ?? '', 5000);
+
+if ($nombre === '' || $mensaje === '') responder(false, 'Complete su nombre y su mensaje.', 422);
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) responder(false, 'Escriba un email válido.', 422);
+$nombre = str_replace("\n", ' ', $nombre);
+
+// Límite simple: un envío cada 30 segundos por visitante
+session_start();
+if (!empty($_SESSION['ultimo_envio']) && time() - $_SESSION['ultimo_envio'] < 30) {
+  responder(false, 'Espere unos segundos antes de volver a enviar.', 429);
+}
+
+$asunto = '=?UTF-8?B?' . base64_encode('Consulta desde la web: ' . $nombre) . '?=';
+$cuerpo = "Nombre: $nombre\nEmail: $email\n\nMensaje:\n$mensaje\n\n--\nEnviado desde el formulario de kume.com.ar";
+$encabezados = implode("\r\n", [
+  'From: küme web <' . REMITENTE . '>',
+  'Reply-To: ' . $email,
+  'MIME-Version: 1.0',
+  'Content-Type: text/plain; charset=UTF-8',
+  'Content-Transfer-Encoding: 8bit',
+]);
+
+if (!mail(DESTINO, $asunto, $cuerpo, $encabezados, '-f' . REMITENTE)) {
+  responder(false, 'No se pudo enviar. Escríbanos a info@kume.com.ar.', 500);
+}
+$_SESSION['ultimo_envio'] = time();
+responder(true);

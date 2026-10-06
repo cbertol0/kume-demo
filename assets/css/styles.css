@@ -1547,3 +1547,4 @@ html.is-locked { overflow: hidden; }
 .site-footer__social li + li { margin-top: 10px; }
 .soc-ic { width: 20px; height: 20px; flex: none; fill: currentColor; transition: fill .2s; }
 .site-footer__social a:hover .soc-ic { fill: var(--naranja); }
+.field--trampa { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }

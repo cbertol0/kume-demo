@@ -1,4 +1,4 @@
-/* küme — demo de rediseño
+/* küme — sitio
    Animaciones: GSAP + ScrollTrigger, scroll suave con Lenis.
    Todo lo visual se degrada bien: sin JS, sin librerías o con
    "reducir movimiento" el sitio se ve completo y sin animaciones.
@@ -88,7 +88,7 @@
   });
 
   /* ------------------------------------------------------------------
-     Formulario (demo: valida, pero no envía nada)
+     Formulario de contacto: valida y envía a contacto.php (que manda el mail a info@kume.com.ar)
      ------------------------------------------------------------------ */
   const form = $('#form-contacto');
   if (form) {
@@ -116,8 +116,21 @@
         if (bad && !firstInvalid) firstInvalid = f;
       });
       if (firstInvalid) { firstInvalid.focus(); return; }
-      status.textContent = 'Demo: En el sitio final este mensaje llegaría a info@kume.com.ar.';
-      form.reset();
+      const btn = $('button[type="submit"]', form);
+      btn.disabled = true;
+      status.textContent = 'Enviando…';
+      fetch(form.getAttribute('action') || 'contacto.php', { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } })
+        .then((r) => r.json().catch(() => ({ ok: false })).then((d) => ({ ok: r.ok && d.ok, d })))
+        .then(({ ok, d }) => {
+          if (ok) {
+            status.textContent = 'Gracias, recibimos su consulta. Le responderemos a la brevedad.';
+            form.reset();
+          } else {
+            status.textContent = (d && d.error) || 'No se pudo enviar. Escríbanos a info@kume.com.ar.';
+          }
+        })
+        .catch(() => { status.textContent = 'No se pudo enviar. Escríbanos a info@kume.com.ar.'; })
+        .finally(() => { btn.disabled = false; });
     });
   }
 
@@ -322,6 +335,7 @@
       els.text.textContent = pr.text;
       els.pres.textContent = pr.pres;
       els.cta.dataset.detalle = id;
+      els.cta.setAttribute('href', '#producto-' + id);
       if (animate) gsap.fromTo(out, { autoAlpha: .35 }, { autoAlpha: 1, duration: .35, ease: 'power2.out' });
     };
 
