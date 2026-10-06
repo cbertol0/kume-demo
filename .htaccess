@@ -42,6 +42,6 @@ DirectoryIndex index.html
 </IfModule>
 
 # No publicar archivos internos
-<FilesMatch "^(README\.md|\.git.*)$">
+<FilesMatch "^(README\.md|\.git.*|contacto-config\.php)$">
   Require all denied
 </FilesMatch>

@@ -126,6 +126,7 @@
             status.textContent = 'Gracias, recibimos su consulta. Le responderemos a la brevedad.';
             form.reset();
           } else {
+            if (d && d.detalle) console.warn('contacto.php:', d.detalle);
             status.textContent = (d && d.error) || 'No se pudo enviar. Escríbanos a info@kume.com.ar.';
           }
         })
