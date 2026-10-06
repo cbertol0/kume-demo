@@ -1521,3 +1521,9 @@ html.is-locked { overflow: hidden; }
 }
 .nota-cta h2 { color: var(--blanco); font-weight: 400; max-width: 18ch; }
 .bfeat .tags .tag--nueva { background: var(--negro); border-color: var(--negro); color: var(--blanco); }
+
+/* Redes en el pie: ícono + nombre */
+.site-footer__social a { display: inline-flex; align-items: center; gap: 10px; }
+.site-footer__social li + li { margin-top: 10px; }
+.soc-ic { width: 20px; height: 20px; flex: none; fill: currentColor; transition: fill .2s; }
+.site-footer__social a:hover .soc-ic { fill: var(--naranja); }
