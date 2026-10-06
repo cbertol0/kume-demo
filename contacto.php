@@ -4,7 +4,9 @@ header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
 const DESTINO = 'info@kume.com.ar';
-const REMITENTE = 'web@kume.com.ar'; // casilla del mismo dominio, para que el mail no caiga en spam
+const REMITENTE = 'info@kume.com.ar';   // igual que el formulario de Elementor del sitio anterior
+const NOMBRE_REMITENTE = 'Küme Alimento';
+const ASUNTO = 'Nuevo Mensaje Vía Web Kume';
 
 function responder($ok, $error = '', $codigo = 200) {
   http_response_code($codigo);
@@ -36,10 +38,13 @@ if (!empty($_SESSION['ultimo_envio']) && time() - $_SESSION['ultimo_envio'] < 30
   responder(false, 'Espere unos segundos antes de volver a enviar.', 429);
 }
 
-$asunto = '=?UTF-8?B?' . base64_encode('Consulta desde la web: ' . $nombre) . '?=';
-$cuerpo = "Nombre: $nombre\nEmail: $email\n\nMensaje:\n$mensaje\n\n--\nEnviado desde el formulario de kume.com.ar";
+$asunto = '=?UTF-8?B?' . base64_encode(ASUNTO) . '?=';
+date_default_timezone_set('America/Argentina/Buenos_Aires');
+$cuerpo = "Nombre: $nombre\nEmail: $email\nMensaje: $mensaje\n\n---\n"
+        . 'Fecha: ' . date('d/m/Y') . "\nHora: " . date('H:i') . "\n"
+        . "Página: https://kume.com.ar/#contacto\n";
 $encabezados = implode("\r\n", [
-  'From: küme web <' . REMITENTE . '>',
+  'From: =?UTF-8?B?' . base64_encode(NOMBRE_REMITENTE) . '?= <' . REMITENTE . '>',
   'Reply-To: ' . $email,
   'MIME-Version: 1.0',
   'Content-Type: text/plain; charset=UTF-8',
