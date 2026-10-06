@@ -343,7 +343,7 @@ html.is-locked { overflow: hidden; }
   -webkit-user-drag: none;
   will-change: transform;
 }
-.escena__animal, .escena__ing { mix-blend-mode: multiply; }
+.escena__animal { mix-blend-mode: multiply; }
 .escena__prod { filter: drop-shadow(0 18px 22px rgb(0 0 0 / .28)); z-index: 2; }
 .escena__ing { z-index: 3; }
 
@@ -473,37 +473,57 @@ html.is-locked { overflow: hidden; }
 
 .story { background: var(--negro); color: var(--blanco); }
 
-.story__pin {
+.story__inner {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
   gap: clamp(24px, 6vw, 96px);
   align-items: center;
-  padding: calc(var(--header-h) + 16px) var(--gutter) 56px;
+  padding: clamp(72px, 10vw, 140px) var(--gutter);
   max-width: 1440px;
   margin: 0 auto;
 }
 
 .story__art { justify-self: center; width: min(100%, 460px); }
-.sprig { width: 100%; height: auto; }
-
-.sprig__rings circle { fill: none; stroke: var(--blanco); stroke-opacity: .16; stroke-width: 1.5; }
-.sprig .stem { fill: none; stroke: var(--verde); stroke-width: 3; stroke-linecap: round; }
-.sprig .leaf { fill: var(--verde); fill-opacity: .9; stroke: var(--verde); stroke-width: 2.5; stroke-linejoin: round; }
-.sprig .leaf--top { fill: var(--naranja); stroke: var(--naranja); }
-
 .story__copy h2 { margin-bottom: clamp(24px, 3vw, 44px); }
-.story__steps { display: grid; gap: 28px; }
+.story__steps { display: grid; gap: clamp(24px, 3vw, 36px); }
 .step h3 { font-size: clamp(1.5rem, 2.8vw, 2.4rem); font-weight: 400; margin-bottom: 10px; }
 .step p { max-width: 46ch; color: rgb(255 255 255 / .86); }
 
-.story.is-pinned .story__pin { min-height: 100svh; padding-bottom: 32px; }
-.story.is-pinned .story__steps { display: grid; grid-template-areas: "s"; }
-.story.is-pinned .step { grid-area: s; align-self: start; }
+/* Flor holística: crece, abre sus pétalos (células, órganos, aparatos y sistemas,
+   aspecto cognitivo, medio ambiente) alrededor del "todo integral", y vuelve a empezar */
+.flor { width: 100%; height: auto; overflow: visible; --dur: 11s; }
+.flor__rings circle, .flor__leaf, .petal, .flor__center, .flor__label { transform-box: fill-box; }
+.flor__rings circle { fill: none; stroke: var(--blanco); stroke-opacity: .14; stroke-width: 1.5; transform-origin: center; animation: flor-ring var(--dur) ease-in-out infinite; }
+.flor__rings circle + circle { animation-delay: -.6s; }
+.flor__stem { fill: none; stroke: var(--verde); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: flor-stem var(--dur) ease-in-out infinite; }
+.flor__leaf { fill: var(--verde); opacity: .92; transform: scale(0); animation: flor-leaf var(--dur) cubic-bezier(.2,.8,.2,1) infinite; }
+.flor__leaf--l1, .flor__leaf--l2 { transform-origin: 100% 100%; }
+.flor__leaf--r1, .flor__leaf--r2 { transform-origin: 0% 100%; }
+.flor__leaf--l2, .flor__leaf--r2 { animation-delay: .45s; }
+.petal { fill: var(--verde); transform-origin: 50% 100%; transform: scale(0); animation: flor-petal var(--dur) cubic-bezier(.2,.9,.25,1.2) infinite; animation-delay: calc(var(--i) * .35s); }
+.petal--alt { fill: #b5e84d; }
+.flor__center circle { fill: var(--naranja); }
+.flor__center { transform-origin: center; transform: scale(0); animation: flor-center var(--dur) cubic-bezier(.2,.9,.25,1.3) infinite; }
+.flor__center text { fill: var(--negro); font-size: 12.5px; font-weight: 700; text-anchor: middle; letter-spacing: -.01em; }
+.flor__label { fill: var(--blanco); font-size: 13px; font-weight: 600; text-anchor: middle; opacity: 0; animation: flor-label var(--dur) ease-out infinite; animation-delay: calc(var(--i) * .35s); }
+
+@keyframes flor-stem { 0% { stroke-dashoffset: 1; opacity: 1; } 18% { stroke-dashoffset: 0; } 86% { stroke-dashoffset: 0; opacity: 1; } 95%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes flor-leaf { 0%, 12% { transform: scale(0); opacity: 0; } 24% { transform: scale(1); opacity: .92; } 86% { transform: scale(1); opacity: .92; } 95%, 100% { transform: scale(.9); opacity: 0; } }
+@keyframes flor-center { 0%, 26% { transform: scale(0); } 32% { transform: scale(1); } 86% { transform: scale(1); opacity: 1; } 95%, 100% { transform: scale(.6); opacity: 0; } }
+@keyframes flor-petal { 0%, 30% { transform: scale(0); opacity: 0; } 38% { transform: scale(1); opacity: 1; } 84% { transform: scale(1); opacity: 1; } 92%, 100% { transform: scale(.4); opacity: 0; } }
+@keyframes flor-label { 0%, 36% { opacity: 0; transform: translateY(6px); } 42% { opacity: 1; transform: none; } 82% { opacity: 1; } 88%, 100% { opacity: 0; } }
+@keyframes flor-ring { 0%, 30% { transform: scale(.94); opacity: .5; } 50% { transform: scale(1); opacity: 1; } 86% { transform: scale(1.02); opacity: 1; } 100% { transform: scale(.94); opacity: .5; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .flor * { animation: none !important; }
+  .flor__stem { stroke-dashoffset: 0; }
+  .flor__leaf, .petal, .flor__center { transform: none; }
+  .flor__label { opacity: 1; }
+}
 
 @media (max-width: 800px) {
-  .story__pin { grid-template-columns: 1fr; gap: 20px; padding-top: calc(var(--header-h) + 20px); }
-  .story__art { width: min(62vw, 300px); }
-  .story.is-pinned .story__pin { align-content: center; }
+  .story__inner { grid-template-columns: 1fr; gap: 20px; }
+  .story__art { width: min(78vw, 340px); }
 }
 
 /* ---------- Profesionales ---------- */

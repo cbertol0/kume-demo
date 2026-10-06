@@ -531,7 +531,7 @@
   }
 
   /* ------------------------------------------------------------------
-     Botones "magnéticos" y cursor personalizado (solo con mouse)
+     Botones "magnéticos" (solo con mouse)
      ------------------------------------------------------------------ */
   if (finePointer) {
     $$('[data-magnetic]').forEach((el) => {
@@ -545,18 +545,6 @@
       el.addEventListener('pointerleave', () => { xTo(0); yTo(0); });
     });
 
-    const cursor = $('.cursor');
-    const cx = gsap.quickTo(cursor, 'x', { duration: 0.35, ease: 'power3' });
-    const cy = gsap.quickTo(cursor, 'y', { duration: 0.35, ease: 'power3' });
-    window.addEventListener('pointermove', (e) => {
-      cursor.classList.add('is-visible');
-      cx(e.clientX);
-      cy(e.clientY);
-    }, { passive: true });
-    document.addEventListener('pointerover', (e) => {
-      cursor.classList.toggle('is-active', !!e.target.closest('a, button, summary, [data-cursor]'));
-    });
-    root.addEventListener('pointerleave', () => cursor.classList.remove('is-visible'));
 
     /* Paneles de producto: la silueta y la foto se mueven un poco en sentido contrario al mouse */
     $$('.panel').forEach((panel) => {
@@ -578,48 +566,12 @@
     });
   }
 
-  /* ------------------------------------------------------------------
-     Scrollytelling: la ramita crece a medida que se lee (sección fijada)
-     ------------------------------------------------------------------ */
-  const story = $('.story');
-  if (story) {
-    const steps = $$('.step', story);
-    const drawables = $$('.draw', story);
-    const groups = $$('[data-group]', story).map((g) => $$('.leaf', g));
-    const stem = $('.stem', story);
-
-    drawables.forEach((p) => {
-      const len = p.getTotalLength();
-      p.style.strokeDasharray = len;
-      p.style.strokeDashoffset = len;
+  /* Alimento holístico: los textos entran al aparecer; la flor se anima sola en loop (CSS) */
+  if ($('.story')) {
+    gsap.from($$('.story .step'), {
+      y: 32, autoAlpha: 0, duration: .9, ease: 'power3.out', stagger: .14,
+      scrollTrigger: { trigger: '.story__steps', start: 'top 82%' }
     });
-    gsap.set($$('.leaf', story), { fillOpacity: 0 });
-    story.classList.add('is-pinned');
-    gsap.set(steps.slice(1), { autoAlpha: 0, y: 28 });
-
-    const tl = gsap.timeline({
-      defaults: { ease: 'none' },
-      scrollTrigger: {
-        trigger: story,
-        start: 'top top',
-        end: () => '+=' + Math.round(window.innerHeight * 2.1),
-        pin: true,
-        scrub: 0.6,
-        anticipatePin: 1,
-        invalidateOnRefresh: true
-      }
-    });
-
-    tl.to(stem, { strokeDashoffset: 0, duration: 3 }, 0);
-    steps.forEach((step, i) => {
-      if (i > 0) tl.to(step, { autoAlpha: 1, y: 0, duration: 0.22, ease: 'power2.out' }, i + 0.02);
-      tl.to(groups[i], { strokeDashoffset: 0, duration: 0.7, stagger: 0.12 }, i + 0.05);
-      tl.to(groups[i], { fillOpacity: (idx, el) => (el.classList.contains('leaf--top') ? 1 : 0.9), duration: 0.25 }, i + 0.7);
-      if (i < steps.length - 1) {
-        tl.to(step, { autoAlpha: 0, y: -28, duration: 0.2, ease: 'power2.in' }, i + 0.82);
-      }
-    });
-    tl.to({}, { duration: 0.15 }); // pausa final con todo visible
   }
 
   /* ------------------------------------------------------------------
