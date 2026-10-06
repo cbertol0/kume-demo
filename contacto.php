@@ -48,14 +48,16 @@ $cuerpo = "Nombre: $nombre\nEmail: $email\nMensaje: $mensaje\n\n---\n"
         . 'Fecha: ' . date('d/m/Y') . "\nHora: " . date('H:i') . "\n"
         . "Página: https://kume.com.ar/#contacto\n";
 
+$config = is_file(__DIR__ . '/contacto-config.php') ? include __DIR__ . '/contacto-config.php' : null;
+// El remitente es la casilla con la que se entra al SMTP (el servidor no deja enviar "en nombre de" otra)
+$remitente = (is_array($config) && !empty($config['usuario'])) ? $config['usuario'] : REMITENTE;
+
 $b64 = function ($s) { return '=?UTF-8?B?' . base64_encode($s) . '?='; };
 $asunto = $b64(ASUNTO);
-$de = $b64(NOMBRE_REMITENTE) . ' <' . REMITENTE . '>';
-
-$config = is_file(__DIR__ . '/contacto-config.php') ? include __DIR__ . '/contacto-config.php' : null;
+$de = $b64(NOMBRE_REMITENTE) . ' <' . $remitente . '>';
 
 if (is_array($config) && !empty($config['clave']) && $config['clave'] !== 'PEGAR_AQUI_LA_CLAVE') {
-  $res = enviar_smtp($config, REMITENTE, DESTINO, $de, $email, $asunto, $cuerpo);
+  $res = enviar_smtp($config, $remitente, DESTINO, $de, $email, $asunto, $cuerpo);
   if ($res !== true) {
     error_log('contacto.php SMTP: ' . $res);
     responder(false, ERROR_ENVIO, 500, 'smtp: ' . $res);
