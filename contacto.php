@@ -22,7 +22,7 @@ if (!empty($_POST['web'])) responder(true);
 $limpiar = function ($v, $max) {
   $v = trim((string)($v ?? ''));
   $v = str_replace(["\r", "\0"], '', $v);
-  return mb_substr($v, 0, $max, 'UTF-8');
+  return function_exists('mb_substr') ? mb_substr($v, 0, $max, 'UTF-8') : substr($v, 0, $max);
 };
 $nombre  = $limpiar($_POST['nombre'] ?? '', 120);
 $email   = $limpiar($_POST['email'] ?? '', 160);
@@ -33,7 +33,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) responder(false, 'Escriba un ema
 $nombre = str_replace("\n", ' ', $nombre);
 
 // Límite simple: un envío cada 30 segundos por visitante
-session_start();
+@session_start();
 if (!empty($_SESSION['ultimo_envio']) && time() - $_SESSION['ultimo_envio'] < 30) {
   responder(false, 'Espere unos segundos antes de volver a enviar.', 429);
 }
@@ -51,7 +51,12 @@ $encabezados = implode("\r\n", [
   'Content-Transfer-Encoding: 8bit',
 ]);
 
-if (!mail(DESTINO, $asunto, $cuerpo, $encabezados, '-f' . REMITENTE)) {
+// Algunos servidores no aceptan el parámetro -f: si falla, se reintenta sin él
+$enviado = @mail(DESTINO, $asunto, $cuerpo, $encabezados, '-f' . REMITENTE);
+if (!$enviado) $enviado = @mail(DESTINO, $asunto, $cuerpo, $encabezados);
+if (!$enviado) {
+  $e = error_get_last();
+  error_log('contacto.php: mail() falló: ' . ($e['message'] ?? 'sin detalle'));
   responder(false, 'No se pudo enviar. Escríbanos a info@kume.com.ar.', 500);
 }
 $_SESSION['ultimo_envio'] = time();
