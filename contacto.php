@@ -1,7 +1,7 @@
 <?php
-// Formulario de contacto de küme: recibe nombre, email y mensaje y los envía a info@kume.com.ar.
-// Envía por SMTP autenticado (DonWeb/Ferozo); los datos de la casilla están en contacto-config.php,
-// que vive solo en el servidor (no está en GitHub).
+// Formulario de contacto de küme: recibe nombre, email y mensaje y los envía por mail.
+// Envía por SMTP autenticado (por ejemplo, una cuenta de Gmail con contraseña de aplicación).
+// La cuenta, la clave y los destinatarios están en contacto-config.php, que vive solo en el servidor.
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
@@ -51,20 +51,23 @@ $cuerpo = "Nombre: $nombre\nEmail: $email\nMensaje: $mensaje\n\n---\n"
 $config = is_file(__DIR__ . '/contacto-config.php') ? include __DIR__ . '/contacto-config.php' : null;
 // El remitente es la casilla con la que se entra al SMTP (el servidor no deja enviar "en nombre de" otra)
 $remitente = (is_array($config) && !empty($config['usuario'])) ? $config['usuario'] : REMITENTE;
+// Destinatarios: lista 'destinos' del config (uno o varios); si no hay, info@kume.com.ar
+$destinos = (is_array($config) && !empty($config['destinos'])) ? array_values(array_filter((array)$config['destinos'], function ($d) { return filter_var($d, FILTER_VALIDATE_EMAIL); })) : [DESTINO];
+if (!$destinos) $destinos = [DESTINO];
 
 $b64 = function ($s) { return '=?UTF-8?B?' . base64_encode($s) . '?='; };
 $asunto = $b64(ASUNTO);
 $de = $b64(NOMBRE_REMITENTE) . ' <' . $remitente . '>';
 
 if (is_array($config) && !empty($config['clave']) && $config['clave'] !== 'PEGAR_AQUI_LA_CLAVE') {
-  $res = enviar_smtp($config, $remitente, DESTINO, $de, $email, $asunto, $cuerpo);
+  $res = enviar_smtp($config, $remitente, $destinos, $de, $email, $asunto, $cuerpo);
   if ($res !== true) {
     error_log('contacto.php SMTP: ' . $res);
     responder(false, ERROR_ENVIO, 500, 'smtp: ' . $res);
   }
 } elseif (function_exists('mail')) {
   $enc = "From: $de\r\nReply-To: $email\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit";
-  if (!@mail(DESTINO, $asunto, $cuerpo, $enc)) responder(false, ERROR_ENVIO, 500, 'mail() devolvió falso');
+  if (!@mail(implode(', ', $destinos), $asunto, $cuerpo, $enc)) responder(false, ERROR_ENVIO, 500, 'mail() devolvió falso');
 } else {
   responder(false, ERROR_ENVIO, 500, 'sin SMTP configurado y mail() deshabilitado');
 }
@@ -95,10 +98,11 @@ function enviar_smtp($c, $desde, $para, $de, $responderA, $asunto, $cuerpo) {
     $paso($cmd(base64_encode($c['usuario']), '334'), 'usuario');
     $paso($cmd(base64_encode($c['clave']), '235'), 'clave');
     $paso($cmd("MAIL FROM:<$desde>", '250'), 'MAIL FROM');
-    $paso($cmd("RCPT TO:<$para>", ['250', '251']), 'RCPT TO');
+    foreach ((array)$para as $p) $paso($cmd("RCPT TO:<$p>", ['250', '251']), "RCPT TO $p");
     $paso($cmd('DATA', '354'), 'DATA');
-    $msg = "From: $de\r\nTo: <$para>\r\nReply-To: <$responderA>\r\nSubject: $asunto\r\n"
-         . 'Date: ' . date('r') . "\r\nMessage-ID: <" . bin2hex(random_bytes(8)) . "@kume.com.ar>\r\n"
+    $dominio = substr(strrchr($desde, '@'), 1);
+    $msg = "From: $de\r\nTo: " . implode(', ', array_map(function ($p) { return "<$p>"; }, (array)$para)) . "\r\nReply-To: <$responderA>\r\nSubject: $asunto\r\n"
+         . 'Date: ' . date('r') . "\r\nMessage-ID: <" . bin2hex(random_bytes(8)) . "@$dominio>\r\n"
          . "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n"
          . chunk_split(base64_encode($cuerpo)) . "\r\n.";
     $paso($cmd($msg, '250'), 'envío');
