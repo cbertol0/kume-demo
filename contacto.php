@@ -1,5 +1,5 @@
 <?php
-// Formulario de contacto de küme: recibe nombre, email y mensaje y los envía a info@kume.com.ar.
+// Formularios de contacto de küme (inicio y comercios en comprar.html): arman el mail y lo envían a info@kume.com.ar.
 // Envía por SMTP autenticado (DonWeb/Ferozo); los datos de la casilla están en contacto-config.php,
 // que vive solo en el servidor (no está en GitHub).
 header('Content-Type: application/json; charset=utf-8');
@@ -29,13 +29,26 @@ function limpiar($v, $max) {
   $v = str_replace(["\r", "\0"], '', $v);
   return function_exists('mb_substr') ? mb_substr($v, 0, $max, 'UTF-8') : substr($v, 0, $max);
 }
-$nombre  = limpiar(isset($_POST['nombre']) ? $_POST['nombre'] : '', 120);
-$email   = limpiar(isset($_POST['email']) ? $_POST['email'] : '', 160);
-$mensaje = limpiar(isset($_POST['mensaje']) ? $_POST['mensaje'] : '', 5000);
+$campo = function ($k, $max) { return limpiar(isset($_POST[$k]) ? $_POST[$k] : '', $max); };
+$nombre  = $campo('nombre', 120);
+$email   = $campo('email', 160);
+$mensaje = $campo('mensaje', 5000);
+// Formulario de comercios (comprar.html): datos extra y mensaje opcional
+$es_comercio = $campo('tipo_consulta', 20) === 'comercio';
+$comercio  = $campo('comercio', 160);
+$rubro     = $campo('rubro', 40);
+$localidad = $campo('localidad', 160);
+$telefono  = $campo('telefono', 40);
 
-if ($nombre === '' || $mensaje === '') responder(false, 'Complete su nombre y su mensaje.', 422);
+if ($es_comercio) {
+  if ($nombre === '' || $comercio === '' || $rubro === '' || $localidad === '') {
+    responder(false, 'Complete su nombre, el comercio, el tipo de comercio y la localidad.', 422);
+  }
+} elseif ($nombre === '' || $mensaje === '') {
+  responder(false, 'Complete su nombre y su mensaje.', 422);
+}
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) responder(false, 'Escriba un email válido.', 422);
-$nombre = str_replace("\n", ' ', $nombre);
+foreach (['nombre', 'comercio', 'rubro', 'localidad', 'telefono'] as $k) $$k = str_replace("\n", ' ', $$k);
 
 // Límite simple: un envío cada 30 segundos por visitante
 @session_start();
@@ -44,16 +57,25 @@ if (!empty($_SESSION['ultimo_envio']) && time() - $_SESSION['ultimo_envio'] < 30
 }
 
 date_default_timezone_set('America/Argentina/Buenos_Aires');
-$cuerpo = "Nombre: $nombre\nEmail: $email\nMensaje: $mensaje\n\n---\n"
-        . 'Fecha: ' . date('d/m/Y') . "\nHora: " . date('H:i') . "\n"
-        . "Página: https://kume.com.ar/#contacto\n";
+if ($es_comercio) {
+  $cuerpo = "Consulta de comercio\n\n"
+          . "Nombre: $nombre\nComercio: $comercio\nTipo: $rubro\nLocalidad: $localidad\n"
+          . "Email: $email\nTeléfono: " . ($telefono !== '' ? $telefono : '-') . "\n"
+          . 'Mensaje: ' . ($mensaje !== '' ? $mensaje : '-') . "\n\n---\n"
+          . 'Fecha: ' . date('d/m/Y') . "\nHora: " . date('H:i') . "\n"
+          . "Página: https://kume.com.ar/comprar.html#comercios\n";
+} else {
+  $cuerpo = "Nombre: $nombre\nEmail: $email\nMensaje: $mensaje\n\n---\n"
+          . 'Fecha: ' . date('d/m/Y') . "\nHora: " . date('H:i') . "\n"
+          . "Página: https://kume.com.ar/#contacto\n";
+}
 
 $config = is_file(__DIR__ . '/contacto-config.php') ? include __DIR__ . '/contacto-config.php' : null;
 // El remitente es la casilla con la que se entra al SMTP (el servidor no deja enviar "en nombre de" otra)
 $remitente = (is_array($config) && !empty($config['usuario'])) ? $config['usuario'] : REMITENTE;
 
 $b64 = function ($s) { return '=?UTF-8?B?' . base64_encode($s) . '?='; };
-$asunto = $b64(ASUNTO);
+$asunto = $b64($es_comercio ? ASUNTO . ' - Comercio: ' . $comercio : ASUNTO);
 $de = $b64(NOMBRE_REMITENTE) . ' <' . $remitente . '>';
 
 if (is_array($config) && !empty($config['clave']) && $config['clave'] !== 'PEGAR_AQUI_LA_CLAVE') {

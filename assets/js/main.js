@@ -90,32 +90,41 @@
   /* ------------------------------------------------------------------
      Formulario de contacto: valida y envía a contacto.php (que manda el mail a info@kume.com.ar)
      ------------------------------------------------------------------ */
-  const form = $('#form-contacto');
-  if (form) {
+  const enDemo = /github\.io$/.test(location.hostname);
+  $$('#form-contacto, #form-comercio').forEach((form) => {
     const status = $('.form__status', form);
     const messages = {
       nombre: 'Escriba su nombre.',
       email: 'Escriba un email válido, por ejemplo nombre@dominio.com.',
-      mensaje: 'Cuéntenos en qué podemos ayudarle.'
+      mensaje: 'Cuéntenos en qué podemos ayudarle.',
+      comercio: 'Escriba el nombre de su comercio.',
+      rubro: 'Elija el tipo de comercio.',
+      localidad: 'Escriba su localidad y provincia.'
     };
+    const campos = () => $$('input:not([type="hidden"]), textarea, select', form);
     const showError = (field, on) => {
       field.setAttribute('aria-invalid', on ? 'true' : 'false');
       const slot = $(`[data-error-for="${field.name}"]`, form);
-      if (slot) slot.textContent = on ? messages[field.name] : '';
+      if (slot) slot.textContent = on ? (messages[field.name] || 'Revise este dato.') : '';
     };
-    $$('input, textarea', form).forEach((f) => {
-      f.addEventListener('input', () => { if (f.validity.valid) showError(f, false); });
+    campos().forEach((f) => {
+      const ev = f.tagName === 'SELECT' ? 'change' : 'input';
+      f.addEventListener(ev, () => { if (f.validity.valid) showError(f, false); });
     });
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       status.textContent = '';
       let firstInvalid = null;
-      $$('input, textarea', form).forEach((f) => {
+      campos().forEach((f) => {
         const bad = !f.validity.valid;
         showError(f, bad);
         if (bad && !firstInvalid) firstInvalid = f;
       });
       if (firstInvalid) { firstInvalid.focus(); return; }
+      if (enDemo) {
+        status.textContent = 'Esto es el demo: el formulario no envía desde acá. En kume.com.ar llega a info@kume.com.ar.';
+        return;
+      }
       const btn = $('button[type="submit"]', form);
       btn.disabled = true;
       status.textContent = 'Enviando…';
@@ -133,7 +142,7 @@
         .catch(() => { status.textContent = 'No se pudo enviar. Escríbanos a info@kume.com.ar.'; })
         .finally(() => { btn.disabled = false; });
     });
-  }
+  });
 
   /* ------------------------------------------------------------------
      Imágenes remotas con respaldo (fotos que se cargan desde kume.com.ar)
