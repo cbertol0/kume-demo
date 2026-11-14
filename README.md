@@ -3,6 +3,32 @@
 Demo estático (HTML + CSS + JS, sin build) de la portada de Küme, aplicando el manual normativo y el folleto 2023 de la marca.
 No es el sitio oficial: los textos, la marca y las imágenes pertenecen a Küme.
 
+## Estado al 14/11/2026
+
+El demo ya no es solo la portada: es la copia de trabajo del sitio que está online en **kume.com.ar** (alojado en DonWeb). Los cambios se prueban acá y después se suben al hosting.
+
+Páginas actuales:
+
+| Archivo | Qué es |
+|---|---|
+| `index.html` | Portada, con los cinco productos en panel lateral, guía rápida, "Tips y noticias" y contacto |
+| `sobre-kume.html` | Sobre küme y perfiles de Sandra Rivadulla y Daniel Pampin |
+| `comprar.html` | Cómo comprar: comercios (formulario) y particulares (tienda online) |
+| `blog.html` y `nota-*.html` | Blog y sus cuatro notas |
+| `tarjeta.html` | Tarjeta de emergencia "Mi perro o mi gato está solo en casa", con descarga del PDF |
+| `contacto.php` | Envío de los formularios por SMTP. Los datos de la casilla van en `contacto-config.php`, que **no está en el repo** y no hay que pisar en el hosting |
+| `.htaccess`, `sitemap.xml`, `robots.txt` | Configuración del servidor (https, redirecciones del sitio viejo, dirección corta `/tarjeta`), mapa del sitio |
+
+Las secciones de más abajo ("Novedades de la versión 2", "Pendiente / a reemplazar", etc.) son el historial del demo y tienen partes viejas: ver la nota al principio de "Pendiente / a reemplazar".
+
+### Tarjeta de emergencia (14/11/2026)
+
+- `tarjeta.html` usa las clases de `comprar.html` (`buy-hero`, `buy`). Lo propio de la página va en un `<style>` dentro del mismo archivo, para no depender de la caché de `styles.css` (7 días en el hosting).
+- El PDF está en `assets/docs/kume-tarjeta-solo-en-casa.pdf` (A4, rellenable, tres versiones: perro, gato y los dos). Se genera con los scripts `kume-tarjeta-emergencia-armar.py` y `kume-tarjeta-emergencia-agrupar-campos.py`, que no están en este repo. Si cambia el PDF, hay que rehacer también la imagen `assets/img/tarjeta-solo-en-casa.webp`.
+- El texto de la página es el que aprobó Sandra para el posteo. No cambiarlo sin consultarla.
+- La portada enlaza a la página desde la primera fila de "Tips y noticias".
+- `kume.com.ar/tarjeta` redirige a `tarjeta.html` por una regla de `.htaccess`. Funciona en DonWeb, no en GitHub Pages.
+
 ## Ver el demo
 
 - **Local:** desde la carpeta del proyecto, `python3 -m http.server 8000` y entrar a `http://localhost:8000`.
@@ -93,6 +119,8 @@ Las tres entran con una animación sobria de aparición; nada nuevo se fija ni s
 
 ## Pendiente / a reemplazar
 
+> **Nota (14/11/2026):** esta lista es de la primera etapa del demo. Ya están resueltos: los testimonios y los puntos de venta de ejemplo (se sacaron de la portada), los CV (están en `assets/docs/`), las fotos de Sobre küme (son locales), el formulario (envía por `contacto.php`), la imagen para redes (`assets/img/og.jpg`) y el blog (tiene sus páginas propias). El resto conviene revisarlo antes de darlo por pendiente.
+
 - **Fotos de los profesionales y de la familia de productos (Sobre Küme):** se cargan directamente desde kume.com.ar. Si esa carga falla, la página muestra las iniciales sobre un bloque de color (y una foto local de la línea). Para independizar el demo: descargarlas a `assets/img/` y cambiar los `src` en `sobre-kume.html`.
 - **Credenciales (CV en PDF):** el botón "Ver credenciales completas" abre los PDF originales alojados en kume.com.ar. No están copiados en el repo. Si se prefiere tenerlos dentro del demo, guardarlos en `assets/docs/` y cambiar los enlaces.
 - **Fotos de producto:** los cinco productos usan recortes con fondo transparente (`assets/img/pack-*.webp`), hechos a partir de las imágenes que envió el cliente. Los de Muscular Plus y Recovery Forte salen de las imágenes con tabla incluida (unos 250 px de alto), así que se ven algo blandos al agrandarse: para el sitio final conviene tener esas dos fotos originales en alta. La bolsa de Perros es la de 3 kg "mordida pequeña".
@@ -110,12 +138,19 @@ Las tres entran con una animación sobria de aparición; nada nuevo se fija ni s
 ```
 index.html
 sobre-kume.html
+comprar.html
+tarjeta.html
+blog.html
+nota-*.html          las cuatro notas del blog
+contacto.php         envío de formularios (usa contacto-config.php, fuera del repo)
+.htaccess  sitemap.xml  robots.txt
 assets/
   css/styles.css     estilos y variables de color
   js/main.js         animaciones e interacciones
   vendor/            GSAP 3.15, ScrollTrigger, Lenis 1.3
   fonts/             Inter (variable, latin)
-  img/               logos y siluetas (SVG), fotos del folleto (JPG)
+  img/               logos y siluetas (SVG), fotos, envases e imágenes del blog
+  docs/              PDF: CV de los profesionales y tarjeta de emergencia
 ```
 
 ## Licencias
